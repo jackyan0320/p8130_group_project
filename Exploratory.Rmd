@@ -16,12 +16,14 @@ cancer_df <-
   read_csv("Cancer_Registry.csv") %>% 
   janitor::clean_names() %>%
   separate(geography, into = c("county", "state"), sep = ",") %>%
-  select(-pct_no_hs18_24, -pct_some_col18_24) %>%     # lots of same county names, so I did not remove state column #
+  select(-pct_no_hs18_24, -pct_some_col18_24, -binned_inc) %>%     # lots of same county names, so I did not remove state column #
   arrange(county)
   
 colSums(is.na(cancer_df))                             # check number of missing values #
 cancer_df = cancer_df %>%
-  select(-pct_employed16_over, -pct_private_coverage_alone)
+  select(-pct_employed16_over, -pct_private_coverage_alone) %>%
+  mutate(pct_white = ifelse(pct_white > 75, 1, 0))    # 1 represents high percentage of white #
+  
 
 ```
 
