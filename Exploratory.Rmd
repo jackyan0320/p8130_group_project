@@ -14,6 +14,12 @@ library(tidyverse)
 ```{r, message = FALSE}
 cancer_df <-
   read_csv("Cancer_Registry.csv") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>%
+  select(-pct_no_hs18_24, -pct_some_col18_24)
+  
+colSums(is.na(cancer_df))
+cancer_df = cancer_df %>%
+  select(-pct_employed16_over, -pct_private_coverage_alone)
+cancer_df
 ```
 
