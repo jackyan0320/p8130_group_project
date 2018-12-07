@@ -51,6 +51,6 @@ colSums(is.na(cancer_df))                             # check number of missing 
 
 ``` r
 cancer_df = cancer_df %>%
-  select(-pct_employed16_over, -pct_private_coverage_alone) %>%
-  mutate(pct_white = ifelse(pct_white > 75, 1, 0))    # 1 represents high percentage of white #
+select(-pct_employed16_over, -pct_private_coverage_alone) %>%
+  mutate(pct_white = ifelse(pct_white > 75, 1, 0))  # 1 represents high percentage of white #
 ```
