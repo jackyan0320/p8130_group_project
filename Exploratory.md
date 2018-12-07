@@ -9,9 +9,11 @@ Data manipulation
 cancer_df <-
   read_csv("Cancer_Registry.csv") %>% 
   janitor::clean_names() %>%
-  select(-pct_no_hs18_24, -pct_some_col18_24)
+  separate(geography, into = c("county", "state"), sep = ",") %>%
+  select(-pct_no_hs18_24, -pct_some_col18_24) %>%     # lots of same county names, so I did not remove state column #
+  arrange(county)
   
-colSums(is.na(cancer_df))
+colSums(is.na(cancer_df))                             # check number of missing values #
 ```
 
     ##              avg_ann_count        avg_deaths_per_year 
@@ -26,54 +28,30 @@ colSums(is.na(cancer_df))
     ##                          0                          0 
     ##            median_age_male          median_age_female 
     ##                          0                          0 
-    ##                  geography         avg_household_size 
+    ##                     county                      state 
     ##                          0                          0 
-    ##            percent_married                pct_hs18_24 
+    ##         avg_household_size            percent_married 
     ##                          0                          0 
-    ##          pct_bach_deg18_24              pct_hs25_over 
+    ##                pct_hs18_24          pct_bach_deg18_24 
     ##                          0                          0 
-    ##        pct_bach_deg25_over        pct_employed16_over 
-    ##                          0                        152 
-    ##      pct_unemployed16_over       pct_private_coverage 
+    ##              pct_hs25_over        pct_bach_deg25_over 
     ##                          0                          0 
-    ## pct_private_coverage_alone      pct_emp_priv_coverage 
-    ##                        609                          0 
-    ##        pct_public_coverage  pct_public_coverage_alone 
+    ##        pct_employed16_over      pct_unemployed16_over 
+    ##                        152                          0 
+    ##       pct_private_coverage pct_private_coverage_alone 
+    ##                          0                        609 
+    ##      pct_emp_priv_coverage        pct_public_coverage 
     ##                          0                          0 
-    ##                  pct_white                  pct_black 
+    ##  pct_public_coverage_alone                  pct_white 
     ##                          0                          0 
-    ##                  pct_asian             pct_other_race 
+    ##                  pct_black                  pct_asian 
     ##                          0                          0 
-    ##     pct_married_households                 birth_rate 
-    ##                          0                          0
+    ##             pct_other_race     pct_married_households 
+    ##                          0                          0 
+    ##                 birth_rate 
+    ##                          0
 
 ``` r
 cancer_df = cancer_df %>%
   select(-pct_employed16_over, -pct_private_coverage_alone)
-cancer_df
 ```
-
-    ## # A tibble: 3,047 x 30
-    ##    avg_ann_count avg_deaths_per_~ target_death_ra~ incidence_rate
-    ##            <dbl>            <int>            <dbl>          <dbl>
-    ##  1          1397              469             165.           490.
-    ##  2           173               70             161.           412.
-    ##  3           102               50             175.           350.
-    ##  4           427              202             195.           430.
-    ##  5            57               26             144.           350.
-    ##  6           428              152             176            505.
-    ##  7           250               97             176.           462.
-    ##  8           146               71             184.           404 
-    ##  9            88               36             190.           459.
-    ## 10          4025             1380             178.           511.
-    ## # ... with 3,037 more rows, and 26 more variables: med_income <int>,
-    ## #   pop_est2015 <int>, poverty_percent <dbl>, study_per_cap <dbl>,
-    ## #   binned_inc <chr>, median_age <dbl>, median_age_male <dbl>,
-    ## #   median_age_female <dbl>, geography <chr>, avg_household_size <dbl>,
-    ## #   percent_married <dbl>, pct_hs18_24 <dbl>, pct_bach_deg18_24 <dbl>,
-    ## #   pct_hs25_over <dbl>, pct_bach_deg25_over <dbl>,
-    ## #   pct_unemployed16_over <dbl>, pct_private_coverage <dbl>,
-    ## #   pct_emp_priv_coverage <dbl>, pct_public_coverage <dbl>,
-    ## #   pct_public_coverage_alone <dbl>, pct_white <dbl>, pct_black <dbl>,
-    ## #   pct_asian <dbl>, pct_other_race <dbl>, pct_married_households <dbl>,
-    ## #   birth_rate <dbl>
