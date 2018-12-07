@@ -1,0 +1,45 @@
+---
+title: "data_selection_tidy_xy2397"
+author: "Xue Yang"
+date: "12/7/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("tidyverse")
+library(faraway)
+library(broom)
+library("leaps")
+library(dplyr)
+library(HH)
+library(MPV) 
+library(caret)
+library(boot) 
+library(datasets)
+library(ModelMetrics)
+```
+
+
+### Load and manipulate the data
+
+```{r, message = FALSE}
+cancer_df = 
+  read_csv(file = "./Cancer_Registry.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(geography, c("county", "state"), sep = ",") %>% 
+  dplyr::select(-pct_no_hs18_24, -pct_some_col18_24, -binned_inc)   
+
+```
+
+### Deal with missing value
+
+```{r}
+# calculate the number of missing value and the percentage of the missing value of them
+missing_value = 
+  cancer_df %>% 
+  summarise_all(funs(sum(is.na(.)))) %>% 
+  gather(term, num_na, everything()) %>% 
+  mutate(percent = num_na/nrow(cancer_df)) 
+```
+
