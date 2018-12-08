@@ -36,5 +36,10 @@ cancer_df=
   select(-state, -county)
 round(cor(cancer_df),3)                         # correlation matrix #
 
+
+
+mult.fit <- lm(target_death_rate ~ ., data=cancer_df)     # stepwise regression, and get 17 variables #
+step(mult.fit, direction='both')
+
 ```
 
