@@ -11,30 +11,30 @@ library(tidyverse)
 
 ## Data manipulation
 
+
 ```{r, message = FALSE}
 cancer_df <-
   read_csv("Cancer_Registry.csv") %>% 
   janitor::clean_names() %>%
-  
-  select(-pct_no_hs18_24, -pct_some_col18_24, -binned_inc, -geography)     # lots of same county names, so I did not remove state column #
- 
+  separate(geography, into = c("county", "state"), sep = ",") %>%
+  select(-pct_no_hs18_24, -pct_some_col18_24, -binned_inc) %>%     # lots of same county names, so I did not remove state column #
+  arrange(county)
   
 colSums(is.na(cancer_df))                             # check number of missing values #
-
-
 cancer_df = 
   cancer_df %>%
-  select(-pct_employed16_over, -pct_private_coverage_alone) 
-  
-round(cor(cancer_df),3) 
+  select(-pct_employed16_over, -pct_private_coverage_alone) %>%
+  mutate(pct_white = ifelse(pct_white > 75, 1, 0)) %>% # 1 represents high percentage of white #
+  select(target_death_rate, everything()) %>% 
+  mutate(state = fct_reorder(state, target_death_rate))
+str(cancer_df)
+cancer_df %>% 
+  lm(target_death_rate ~ state, data = .) %>% summary()
 
+cancer_df=
+  cancer_df %>%
+  select(-state, -county)
+round(cor(cancer_df),3)                         # correlation matrix #
 
-
-
-
-
-
-a=lm(target_death_rate ~ .,data=cancer_df)
-summary(a)
 ```
 
