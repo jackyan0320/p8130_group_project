@@ -24,7 +24,7 @@ colSums(is.na(cancer_df))                             # check number of missing 
 cancer_df = 
   cancer_df %>%
   select(-pct_employed16_over, -pct_private_coverage_alone) %>%
-  mutate(pct_white = ifelse(pct_white > 75, 1, 0)) %>% # 1 represents high percentage of white #
+  
   select(target_death_rate, everything()) %>% 
   mutate(state = fct_reorder(state, target_death_rate))
 str(cancer_df)
@@ -52,5 +52,8 @@ step2= lm(target_death_rate ~ . - avg_ann_count - pop_est2015, data = seventeen_
 summary(step2)
 step3=lm(target_death_rate ~ . - pop_est2015 - avg_deaths_per_year , data=seventeen_variable)
 summary(step3)
+
+fifteen_variable = seventeen_variable %>%
+  select(-avg_deaths_per_year, - pop_est2015)
 ```
 * "avg_deaths_per_year",  "avg_ann_count" and "pop_est2015" are highly correlated. The last three steps show that we should choose avg_ann_count, because the p-value is the smallest, showing significant relation between target_death_rate and avg_ann_count. 
