@@ -36,7 +36,7 @@ cancer_df=
   select(-state, -county)
 
 
-mult.fit <- lm(target_death_rate ~ ., data=cancer_df)     # stepwise regression, and get 17 variables left#
+mult.fit = lm(target_death_rate ~ ., data=cancer_df)     # stepwise regression, and get 17 variables left#
 step(mult.fit, direction='both')
 
 seventeen_variable = cancer_df %>%
@@ -46,19 +46,11 @@ seventeen_variable = cancer_df %>%
      pct_unemployed16_over , pct_private_coverage , pct_emp_priv_coverage , 
     pct_white , pct_other_race , pct_married_households , birth_rate)
 round(cor(seventeen_variable),3)                    # correlation matrix #
-step1=lm(target_death_rate ~ avg_ann_count  + 
-     incidence_rate + pop_est2015 + poverty_percent + median_age_male + 
-     percent_married + pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + 
-     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-     pct_white + pct_other_race + pct_married_households + birth_rate, 
-     data = seventeen_variable)
+step1=lm(target_death_rate ~ . - avg_ann_count - avg_deaths_per_year, data = seventeen_variable)
 summary(step1)
-step2= lm(target_death_rate ~ avg_deaths_per_year  + 
-     incidence_rate + pop_est2015 + poverty_percent + median_age_male + 
-     percent_married + pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + 
-     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-     pct_white + pct_other_race + pct_married_households + birth_rate, 
-     data = seventeen_variable)
+step2= lm(target_death_rate ~ . - avg_ann_count - pop_est2015, data = seventeen_variable)
 summary(step2)
+step3=lm(target_death_rate ~ . - pop_est2015 - avg_deaths_per_year , data=seventeen_variable)
+summary(step3)
 ```
-* "avg_deaths_per_year" and "not avg_ann_count" are highly correlated. The last two steps show that we should choose avg_deaths_per_year, not avg_ann_count. 
+* "avg_deaths_per_year",  "avg_ann_count" and "pop_est2015" are highly correlated. The last three steps show that we should choose avg_ann_count, because the p-value is the smallest, showing significant relation between target_death_rate and avg_ann_count. 

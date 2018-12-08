@@ -170,7 +170,7 @@ cancer_df=
   select(-state, -county)
 
 
-mult.fit <- lm(target_death_rate ~ ., data=cancer_df)     # stepwise regression, and get 17 variables left#
+mult.fit = lm(target_death_rate ~ ., data=cancer_df)     # stepwise regression, and get 17 variables left#
 step(mult.fit, direction='both')
 ```
 
@@ -766,99 +766,120 @@ round(cor(seventeen_variable),3)                    # correlation matrix #
     ## birth_rate                              0.102      1.000
 
 ``` r
-step1=lm(target_death_rate ~ avg_ann_count  + 
-     incidence_rate + pop_est2015 + poverty_percent + median_age_male + 
-     percent_married + pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + 
-     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-     pct_white + pct_other_race + pct_married_households + birth_rate, 
-     data = seventeen_variable)
+step1=lm(target_death_rate ~ . - avg_ann_count - avg_deaths_per_year, data = seventeen_variable)
 summary(step1)
 ```
 
     ## 
     ## Call:
-    ## lm(formula = target_death_rate ~ avg_ann_count + incidence_rate + 
-    ##     pop_est2015 + poverty_percent + median_age_male + percent_married + 
-    ##     pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + 
-    ##     pct_private_coverage + pct_emp_priv_coverage + pct_white + 
-    ##     pct_other_race + pct_married_households + birth_rate, data = seventeen_variable)
+    ## lm(formula = target_death_rate ~ . - avg_ann_count - avg_deaths_per_year, 
+    ##     data = seventeen_variable)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -99.956 -10.943  -0.364  10.698 136.733 
+    ## -98.452 -10.903  -0.426  10.667 137.259 
     ## 
     ## Coefficients:
     ##                          Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)             1.234e+02  1.067e+01  11.564  < 2e-16 ***
-    ## avg_ann_count          -1.899e-03  6.978e-04  -2.722 0.006534 ** 
-    ## incidence_rate          1.961e-01  7.083e-03  27.679  < 2e-16 ***
-    ## pop_est2015             5.760e-06  3.016e-06   1.910 0.056242 .  
-    ## poverty_percent         4.732e-01  1.274e-01   3.716 0.000206 ***
-    ## median_age_male        -4.551e-01  1.012e-01  -4.498 7.12e-06 ***
-    ## percent_married         7.842e-01  1.404e-01   5.586 2.53e-08 ***
-    ## pct_hs18_24             2.830e-01  4.609e-02   6.140 9.34e-10 ***
-    ## pct_hs25_over           3.623e-01  9.331e-02   3.883 0.000105 ***
-    ## pct_bach_deg25_over    -1.150e+00  1.403e-01  -8.197 3.59e-16 ***
-    ## pct_unemployed16_over   5.427e-01  1.515e-01   3.582 0.000346 ***
-    ## pct_private_coverage   -5.429e-01  8.889e-02  -6.107 1.14e-09 ***
-    ## pct_emp_priv_coverage   3.739e-01  8.312e-02   4.499 7.09e-06 ***
-    ## pct_white              -2.847e+00  1.054e+00  -2.701 0.006951 ** 
-    ## pct_other_race         -9.007e-01  1.191e-01  -7.560 5.30e-14 ***
-    ## pct_married_households -8.858e-01  1.255e-01  -7.059 2.07e-12 ***
-    ## birth_rate             -9.309e-01  1.905e-01  -4.886 1.08e-06 ***
+    ## (Intercept)             1.240e+02  1.068e+01  11.612  < 2e-16 ***
+    ## incidence_rate          1.938e-01  7.042e-03  27.522  < 2e-16 ***
+    ## pop_est2015            -1.772e-06  1.200e-06  -1.477 0.139696    
+    ## poverty_percent         4.902e-01  1.273e-01   3.850 0.000121 ***
+    ## median_age_male        -4.714e-01  1.011e-01  -4.663 3.25e-06 ***
+    ## percent_married         7.619e-01  1.403e-01   5.431 6.03e-08 ***
+    ## pct_hs18_24             2.922e-01  4.602e-02   6.349 2.50e-10 ***
+    ## pct_hs25_over           3.744e-01  9.330e-02   4.013 6.15e-05 ***
+    ## pct_bach_deg25_over    -1.131e+00  1.403e-01  -8.061 1.07e-15 ***
+    ## pct_unemployed16_over   5.430e-01  1.516e-01   3.581 0.000348 ***
+    ## pct_private_coverage   -5.603e-01  8.875e-02  -6.313 3.13e-10 ***
+    ## pct_emp_priv_coverage   3.759e-01  8.321e-02   4.517 6.51e-06 ***
+    ## pct_white              -2.938e+00  1.055e+00  -2.786 0.005373 ** 
+    ## pct_other_race         -9.114e-01  1.192e-01  -7.646 2.77e-14 ***
+    ## pct_married_households -8.488e-01  1.249e-01  -6.797 1.28e-11 ***
+    ## birth_rate             -9.694e-01  1.902e-01  -5.096 3.68e-07 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 19.4 on 3030 degrees of freedom
-    ## Multiple R-squared:  0.5139, Adjusted R-squared:  0.5113 
-    ## F-statistic: 200.2 on 16 and 3030 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 19.42 on 3031 degrees of freedom
+    ## Multiple R-squared:  0.5127, Adjusted R-squared:  0.5103 
+    ## F-statistic: 212.6 on 15 and 3031 DF,  p-value: < 2.2e-16
 
 ``` r
-step2= lm(target_death_rate ~ avg_deaths_per_year  + 
-     incidence_rate + pop_est2015 + poverty_percent + median_age_male + 
-     percent_married + pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + 
-     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-     pct_white + pct_other_race + pct_married_households + birth_rate, 
-     data = seventeen_variable)
+step2= lm(target_death_rate ~ . - avg_ann_count - pop_est2015, data = seventeen_variable)
 summary(step2)
 ```
 
     ## 
     ## Call:
-    ## lm(formula = target_death_rate ~ avg_deaths_per_year + incidence_rate + 
-    ##     pop_est2015 + poverty_percent + median_age_male + percent_married + 
-    ##     pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + 
-    ##     pct_private_coverage + pct_emp_priv_coverage + pct_white + 
-    ##     pct_other_race + pct_married_households + birth_rate, data = seventeen_variable)
+    ## lm(formula = target_death_rate ~ . - avg_ann_count - pop_est2015, 
+    ##     data = seventeen_variable)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -96.440 -11.088  -0.457  10.743 136.074 
+    ## -98.045 -10.924  -0.429  10.658 137.610 
     ## 
     ## Coefficients:
     ##                          Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)             1.231e+02  1.067e+01  11.539  < 2e-16 ***
-    ## avg_deaths_per_year     1.147e-02  3.505e-03   3.273 0.001075 ** 
-    ## incidence_rate          1.913e-01  7.071e-03  27.056  < 2e-16 ***
-    ## pop_est2015            -1.885e-05  5.353e-06  -3.521 0.000436 ***
-    ## poverty_percent         5.351e-01  1.279e-01   4.185 2.94e-05 ***
-    ## median_age_male        -5.093e-01  1.016e-01  -5.013 5.67e-07 ***
-    ## percent_married         7.799e-01  1.402e-01   5.564 2.87e-08 ***
-    ## pct_hs18_24             2.963e-01  4.596e-02   6.447 1.32e-10 ***
-    ## pct_hs25_over           3.674e-01  9.317e-02   3.943 8.23e-05 ***
-    ## pct_bach_deg25_over    -1.135e+00  1.401e-01  -8.103 7.68e-16 ***
-    ## pct_unemployed16_over   4.961e-01  1.521e-01   3.262 0.001117 ** 
-    ## pct_private_coverage   -5.522e-01  8.864e-02  -6.229 5.34e-10 ***
-    ## pct_emp_priv_coverage   3.668e-01  8.312e-02   4.413 1.06e-05 ***
-    ## pct_white              -3.127e+00  1.054e+00  -2.966 0.003041 ** 
-    ## pct_other_race         -9.046e-01  1.190e-01  -7.600 3.92e-14 ***
-    ## pct_married_households -8.107e-01  1.252e-01  -6.474 1.11e-10 ***
-    ## birth_rate             -9.646e-01  1.899e-01  -5.079 4.02e-07 ***
+    ## (Intercept)             1.238e+02  1.069e+01  11.589  < 2e-16 ***
+    ## avg_deaths_per_year    -5.566e-04  7.856e-04  -0.708 0.478705    
+    ## incidence_rate          1.936e-01  7.053e-03  27.452  < 2e-16 ***
+    ## poverty_percent         4.948e-01  1.276e-01   3.878 0.000108 ***
+    ## median_age_male        -4.721e-01  1.012e-01  -4.663 3.25e-06 ***
+    ## percent_married         7.623e-01  1.403e-01   5.432 6.02e-08 ***
+    ## pct_hs18_24             2.927e-01  4.604e-02   6.357 2.36e-10 ***
+    ## pct_hs25_over           3.759e-01  9.332e-02   4.028 5.77e-05 ***
+    ## pct_bach_deg25_over    -1.147e+00  1.403e-01  -8.178 4.18e-16 ***
+    ## pct_unemployed16_over   5.365e-01  1.519e-01   3.531 0.000420 ***
+    ## pct_private_coverage   -5.523e-01  8.881e-02  -6.219 5.71e-10 ***
+    ## pct_emp_priv_coverage   3.682e-01  8.327e-02   4.421 1.02e-05 ***
+    ## pct_white              -2.856e+00  1.054e+00  -2.711 0.006751 ** 
+    ## pct_other_race         -9.281e-01  1.191e-01  -7.795 8.77e-15 ***
+    ## pct_married_households -8.474e-01  1.250e-01  -6.778 1.46e-11 ***
+    ## birth_rate             -9.689e-01  1.903e-01  -5.092 3.76e-07 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 19.39 on 3030 degrees of freedom
-    ## Multiple R-squared:  0.5144, Adjusted R-squared:  0.5118 
-    ## F-statistic: 200.6 on 16 and 3030 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 19.43 on 3031 degrees of freedom
+    ## Multiple R-squared:  0.5124, Adjusted R-squared:   0.51 
+    ## F-statistic: 212.4 on 15 and 3031 DF,  p-value: < 2.2e-16
 
--   "avg\_deaths\_per\_year" and "not avg\_ann\_count" are highly correlated. The last two steps show that we should choose avg\_deaths\_per\_year, not avg\_ann\_count.
+``` r
+step3=lm(target_death_rate ~ . - pop_est2015 - avg_deaths_per_year , data=seventeen_variable)
+summary(step3)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ . - pop_est2015 - avg_deaths_per_year, 
+    ##     data = seventeen_variable)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -99.474 -10.926  -0.309  10.641 136.788 
+    ## 
+    ## Coefficients:
+    ##                          Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)             1.240e+02  1.067e+01  11.622  < 2e-16 ***
+    ## avg_ann_count          -6.761e-04  2.774e-04  -2.437 0.014848 *  
+    ## incidence_rate          1.949e-01  7.059e-03  27.606  < 2e-16 ***
+    ## poverty_percent         4.776e-01  1.274e-01   3.749 0.000181 ***
+    ## median_age_male        -4.632e-01  1.011e-01  -4.580 4.84e-06 ***
+    ## percent_married         7.687e-01  1.402e-01   5.483 4.54e-08 ***
+    ## pct_hs18_24             2.882e-01  4.603e-02   6.261 4.36e-10 ***
+    ## pct_hs25_over           3.690e-01  9.328e-02   3.955 7.81e-05 ***
+    ## pct_bach_deg25_over    -1.122e+00  1.396e-01  -8.036 1.31e-15 ***
+    ## pct_unemployed16_over   5.513e-01  1.515e-01   3.639 0.000278 ***
+    ## pct_private_coverage   -5.622e-01  8.835e-02  -6.364 2.26e-10 ***
+    ## pct_emp_priv_coverage   3.830e-01  8.302e-02   4.613 4.13e-06 ***
+    ## pct_white              -2.975e+00  1.052e+00  -2.827 0.004724 ** 
+    ## pct_other_race         -8.918e-01  1.191e-01  -7.488 9.15e-14 ***
+    ## pct_married_households -8.652e-01  1.251e-01  -6.917 5.60e-12 ***
+    ## birth_rate             -9.563e-01  1.902e-01  -5.029 5.22e-07 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 19.41 on 3031 degrees of freedom
+    ## Multiple R-squared:  0.5133, Adjusted R-squared:  0.5109 
+    ## F-statistic: 213.1 on 15 and 3031 DF,  p-value: < 2.2e-16
+
+-   "avg\_deaths\_per\_year", "avg\_ann\_count" and "pop\_est2015" are highly correlated. The last three steps show that we should choose avg\_ann\_count, because the p-value is the smallest, showing significant relation between target\_death\_rate and avg\_ann\_count.
