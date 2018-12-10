@@ -667,4 +667,4 @@ raw_data=cancer_df %>%
 -   First we remove two variables with lots of missing values "pct\_employed16\_over" and "pct\_private\_coverage\_alone".
 -   Then we remove "binned\_inc" and "birth\_rate" because ?????
 -   "avg\_deaths\_per\_year", "avg\_ann\_count" and "pop\_est2015" are highly correlated. The last three steps show that we should choose avg\_ann\_count, because the p-value is the smallest, showing significant relation between target\_death\_rate and avg\_ann\_count.
--   Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value.
+-   Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw\_data.
