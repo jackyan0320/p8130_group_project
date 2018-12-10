@@ -7,53 +7,39 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library("leaps")
+
+
 ```
 
 ## Data manipulation
 
 
+
 ```{r, message = FALSE}
-cancer_df <-
-  read_csv("Cancer_Registry.csv") %>% 
+cancer_df = read_csv("Cancer_Registry.csv") %>% 
   janitor::clean_names() %>%
-  separate(geography, into = c("county", "state"), sep = ",") %>%
-  select(-pct_no_hs18_24, -pct_some_col18_24, -binned_inc) %>%     # lots of same county names, so I did not remove state column #
-  arrange(county)
+  select(-geography)
+colSums(is.na(cancer_df))                # check number of missing values #
+cancer_df = cancer_df %>%
+  select(-pct_employed16_over, - pct_private_coverage_alone)
+
   
-colSums(is.na(cancer_df))                             # check number of missing values #
-cancer_df = 
-  cancer_df %>%
-  select(-pct_employed16_over, -pct_private_coverage_alone) %>%
-  
-  select(target_death_rate, everything()) %>% 
-  mutate(state = fct_reorder(state, target_death_rate))
-str(cancer_df)
-cancer_df %>% 
-  lm(target_death_rate ~ state, data = .) %>% summary()
+                            
 
-cancer_df=
-  cancer_df %>%
-  select(-state, -county)
-
-
-mult.fit = lm(target_death_rate ~ ., data=cancer_df)     # stepwise regression, and get 17 variables left#
-step(mult.fit, direction='both')
-
-seventeen_variable = cancer_df %>%
-  select(target_death_rate, avg_ann_count , avg_deaths_per_year , 
-     incidence_rate , pop_est2015 , poverty_percent ,median_age_male , 
-     percent_married , pct_hs18_24 , pct_hs25_over , pct_bach_deg25_over , 
-     pct_unemployed16_over , pct_private_coverage , pct_emp_priv_coverage , 
-    pct_white , pct_other_race , pct_married_households , birth_rate)
-round(cor(seventeen_variable),3)                    # correlation matrix #
-step1=lm(target_death_rate ~ . - avg_ann_count - avg_deaths_per_year, data = seventeen_variable)
-summary(step1)
-step2= lm(target_death_rate ~ . - avg_ann_count - pop_est2015, data = seventeen_variable)
-summary(step2)
-step3=lm(target_death_rate ~ . - pop_est2015 - avg_deaths_per_year , data=seventeen_variable)
-summary(step3)
-
-fifteen_variable = seventeen_variable %>%
-  select(-avg_deaths_per_year, - pop_est2015)
+cancer_df %>%
+  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 + pct_hs25_over + pct_bach_deg25_over, data=.) %>%
+  summary()
+cancer_df %>%
+  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 , data=.) %>%
+  summary()
+data=cancer_df %>%
+  select(target_death_rate, pct_no_hs18_24 , pct_hs18_24 , pct_bach_deg18_24 , pct_some_col18_24 , pct_hs25_over , pct_bach_deg25_over)
+round(cor(data),3)
+cancer_df %>%
+  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 +pct_hs25_over + pct_bach_deg25_over+ pct_hs25_over * pct_bach_deg25_over, data=.) %>%
+  summary()
 ```
+
+
 * "avg_deaths_per_year",  "avg_ann_count" and "pop_est2015" are highly correlated. The last three steps show that we should choose avg_ann_count, because the p-value is the smallest, showing significant relation between target_death_rate and avg_ann_count. 
