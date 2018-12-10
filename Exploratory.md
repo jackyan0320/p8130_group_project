@@ -188,4 +188,9 @@ cancer_df %>%
     ## Multiple R-squared:  0.2533, Adjusted R-squared:  0.2464 
     ## F-statistic: 36.55 on 7 and 754 DF,  p-value: < 2.2e-16
 
+``` r
+a=cancer_df %>%
+  select()
+```
+
 -   "avg\_deaths\_per\_year", "avg\_ann\_count" and "pop\_est2015" are highly correlated. The last three steps show that we should choose avg\_ann\_count, because the p-value is the smallest, showing significant relation between target\_death\_rate and avg\_ann\_count.

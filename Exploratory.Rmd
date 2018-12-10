@@ -39,6 +39,9 @@ round(cor(data),3)
 cancer_df %>%
   lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 +pct_hs25_over + pct_bach_deg25_over+ pct_hs25_over * pct_bach_deg25_over, data=.) %>%
   summary()
+
+a=cancer_df %>%
+  select()
 ```
 
 
