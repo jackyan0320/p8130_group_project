@@ -664,4 +664,7 @@ raw_data=cancer_df %>%
   select(-avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , - pct_hs18_24 , - pct_bach_deg18_24 , - pct_some_col18_24 , - median_age, - pct_private_coverage, - pct_public_coverage, -pct_public_coverage_alone, -percent_married , - birth_rate)
 ```
 
+-   First we remove two variables with lots of missing values "pct\_employed16\_over" and "pct\_private\_coverage\_alone".
+-   Then we remove "binned\_inc" and "birth\_rate" because ?????
 -   "avg\_deaths\_per\_year", "avg\_ann\_count" and "pop\_est2015" are highly correlated. The last three steps show that we should choose avg\_ann\_count, because the p-value is the smallest, showing significant relation between target\_death\_rate and avg\_ann\_count.
+-   Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value.
