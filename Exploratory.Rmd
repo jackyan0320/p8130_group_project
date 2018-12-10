@@ -22,7 +22,7 @@ cancer_df = read_csv("Cancer_Registry.csv") %>%
   select(-geography)
 colSums(is.na(cancer_df))                # check number of missing values #
 cancer_df = cancer_df %>%
-  select(-pct_employed16_over, - pct_private_coverage_alone)
+  select(-pct_employed16_over, - pct_private_coverage_alone, - binned_inc)
 
   
                             
@@ -35,13 +35,27 @@ cancer_df %>%
   summary()
 data=cancer_df %>%
   select(target_death_rate, pct_no_hs18_24 , pct_hs18_24 , pct_bach_deg18_24 , pct_some_col18_24 , pct_hs25_over , pct_bach_deg25_over)
-round(cor(data),3)
-cancer_df %>%
-  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 +pct_hs25_over + pct_bach_deg25_over+ pct_hs25_over * pct_bach_deg25_over, data=.) %>%
-  summary()
+cor(cancer_df)
 
 a=cancer_df %>%
-  select()
+  select(target_death_rate, median_age , median_age_male, median_age_female) 
+lm(target_death_rate ~ median_age + median_age_male+ median_age_female, data=a)%>%
+  summary()
+
+b=cancer_df %>%
+  select(target_death_rate, pct_private_coverage,pct_emp_priv_coverage,pct_public_coverage,pct_public_coverage_alone)
+lm(target_death_rate ~pct_private_coverage+pct_emp_priv_coverage+pct_public_coverage+pct_public_coverage_alone, data=b)  %>%
+  summary()
+
+c=cancer_df %>%
+  select(target_death_rate, pct_white , pct_black, pct_asian , pct_other_race)
+lm(target_death_rate ~ pct_white + pct_black+ pct_asian + pct_other_race,data=c) %>%
+  summary()
+
+lm(target_death_rate ~ percent_married, data = cancer_df) %>% summary()
+lm(target_death_rate ~ pct_married_households, data = cancer_df) %>% summary()
+raw_data=cancer_df %>%
+  select(-avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , - pct_hs18_24 , - pct_bach_deg18_24 , - pct_some_col18_24 , - median_age, - pct_private_coverage, - pct_public_coverage, -pct_public_coverage_alone, -percent_married , - birth_rate)
 ```
 
 
