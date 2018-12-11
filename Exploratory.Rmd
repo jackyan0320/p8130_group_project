@@ -8,8 +8,6 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library("leaps")
-
-
 ```
 
 ## Data manipulation
@@ -62,3 +60,26 @@ raw_data=cancer_df %>%
 * Then we remove "binned_inc" and "birth_rate" because ?????
 * "avg_deaths_per_year",  "avg_ann_count" and "pop_est2015" are highly correlated. The last three steps show that we should choose avg_ann_count, because the p-value is the smallest, showing significant relation between target_death_rate and avg_ann_count.
 * Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw_data.
+
+###stepwise
+```{r}
+model1 <- lm(target_death_rate ~ ., data=raw_data)
+step(model1, direction='backward')%>%
+summary()
+```
+
+###cp and adjusted R
+```{r}
+b<-regsubsets(target_death_rate ~ ., data=raw_data, nvmax = 30)
+   (rs<-summary(b))
+
+par(mar=c(4,4,1,1))
+par(mfrow=c(1,2))
+
+plot(2:10, rs$cp, xlab="No of parameters", ylab="Cp Statistic")
+abline(0,1)
+
+plot(2:10, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
+
+```
+From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from  plot of R square, subsets with number of 4 to 10 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence_rate, poverty_percent, avg_ann_count, and pct_hs25_over. 
