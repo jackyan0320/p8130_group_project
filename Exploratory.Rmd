@@ -18,6 +18,7 @@ library("leaps")
 cancer_df = read_csv("Cancer_Registry.csv") %>% 
   janitor::clean_names() %>%
   select(-geography)
+data.frame(cancer_df)
 colSums(is.na(cancer_df))                # check number of missing values #
 cancer_df = cancer_df %>%
   select(-pct_employed16_over, - pct_private_coverage_alone, - binned_inc)
@@ -70,6 +71,13 @@ summary()
 
 ###cp and adjusted R
 ```{r}
+
+raw_cp = raw_data[,c(1,2,3,5,6,7,8,9,10,12,11,13,14,15,16,17,18,4)]
+
+raw_cp(x = raw_data[,1:17], y = state_cp[,18], nbest=2, method="Cp")
+
+leaps(x = raw_cp[,1:17], y = raw_cp[,18], nbest=2, method="adjr2")
+
 b<-regsubsets(target_death_rate ~ ., data=raw_data, nvmax = 30)
    (rs<-summary(b))
 
@@ -82,4 +90,4 @@ abline(0,1)
 plot(2:18, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
 
 ```
-From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from  plot of R square, subsets with number of 4 to 10 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence_rate, poverty_percent, avg_ann_count, and pct_hs25_over. 
+From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from  plot of R square, subsets with number of 9 to 17 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence_rate, poverty_percent, avg_ann_count, pct_hs25_over, pct_bach_deg25_over, pct_unemployed16_over, pct_married_households, 
