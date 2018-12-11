@@ -15,45 +15,15 @@ library("leaps")
 
 
 ```{r, message = FALSE}
-cancer_df = read_csv("Cancer_Registry.csv") %>% 
-  janitor::clean_names() %>%
-  select(-geography)
-colSums(is.na(cancer_df))                # check number of missing values #
-cancer_df = cancer_df %>%
-  select(-pct_employed16_over, - pct_private_coverage_alone, - binned_inc)
+cancer_df =
+  read_csv("Cancer_Registry.csv") %>% 
+  janitor::clean_names()
 
-  
-                            
-
-cancer_df %>%
-  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 + pct_hs25_over + pct_bach_deg25_over, data=.) %>%
-  summary()
-cancer_df %>%
-  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 , data=.) %>%
-  summary()
-data=cancer_df %>%
-  select(target_death_rate, pct_no_hs18_24 , pct_hs18_24 , pct_bach_deg18_24 , pct_some_col18_24 , pct_hs25_over , pct_bach_deg25_over)
-cor(cancer_df)
-
-a=cancer_df %>%
-  select(target_death_rate, median_age , median_age_male, median_age_female) 
-lm(target_death_rate ~ median_age + median_age_male+ median_age_female, data=a)%>%
-  summary()
-
-b=cancer_df %>%
-  select(target_death_rate, pct_private_coverage,pct_emp_priv_coverage,pct_public_coverage,pct_public_coverage_alone)
-lm(target_death_rate ~pct_private_coverage+pct_emp_priv_coverage+pct_public_coverage+pct_public_coverage_alone, data=b)  %>%
-  summary()
-
-c=cancer_df %>%
-  select(target_death_rate, pct_white , pct_black, pct_asian , pct_other_race)
-lm(target_death_rate ~ pct_white + pct_black+ pct_asian + pct_other_race,data=c) %>%
-  summary()
-
-lm(target_death_rate ~ percent_married, data = cancer_df) %>% summary()
-lm(target_death_rate ~ pct_married_households, data = cancer_df) %>% summary()
-raw_data=cancer_df %>%
-  select(-avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , - pct_hs18_24 , - pct_bach_deg18_24 , - pct_some_col18_24 , - median_age, - pct_private_coverage, - pct_public_coverage, -pct_public_coverage_alone, -percent_married , - birth_rate)
+raw_data =
+  cancer_df %>%
+  dplyr::select(-pct_employed16_over, - pct_private_coverage_alone, - binned_inc, -geography) %>% 
+  dplyr::select(-avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , - pct_hs18_24 , - pct_bach_deg18_24 , - pct_some_col18_24 , - median_age, - pct_private_coverage, - pct_public_coverage, -pct_public_coverage_alone, -percent_married , - birth_rate) %>% 
+  dplyr::select(target_death_rate, everything())
 ```
 
 * First we remove two variables with lots of missing values "pct_employed16_over" and "pct_private_coverage_alone".
@@ -82,4 +52,4 @@ abline(0,1)
 plot(2:18, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
 
 ```
-From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from  plot of R square, subsets with number of 4 to 10 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence_rate, poverty_percent, avg_ann_count, and pct_hs25_over. 
+From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from  plot of R square, subsets with number of 9 to 17 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence_rate, poverty_percent, avg_ann_count, pct_hs25_over, pct_bach_deg25_over, pct_unemployed16_over, pct_married_households, median_age_female, and pct_white.
