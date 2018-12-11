@@ -6,14 +6,10 @@ Data manipulation
 -----------------
 
 ``` r
-cancer_df <-
-  read_csv("Cancer_Registry.csv") %>% 
+cancer_df = read_csv("Cancer_Registry.csv") %>% 
   janitor::clean_names() %>%
-  separate(geography, into = c("county", "state"), sep = ",") %>%
-  select(-pct_no_hs18_24, -pct_some_col18_24, -binned_inc) %>%     # lots of same county names, so I did not remove state column #
-  arrange(county)
-  
-colSums(is.na(cancer_df))                             # check number of missing values #
+  select(-geography)
+colSums(is.na(cancer_df))                # check number of missing values #
 ```
 
     ##              avg_ann_count        avg_deaths_per_year 
@@ -24,867 +20,651 @@ colSums(is.na(cancer_df))                             # check number of missing 
     ##                          0                          0 
     ##            poverty_percent              study_per_cap 
     ##                          0                          0 
-    ##                 median_age            median_age_male 
+    ##                 binned_inc                 median_age 
     ##                          0                          0 
-    ##          median_age_female                     county 
+    ##            median_age_male          median_age_female 
     ##                          0                          0 
-    ##                      state         avg_household_size 
+    ##         avg_household_size            percent_married 
     ##                          0                          0 
-    ##            percent_married                pct_hs18_24 
+    ##             pct_no_hs18_24                pct_hs18_24 
     ##                          0                          0 
-    ##          pct_bach_deg18_24              pct_hs25_over 
+    ##          pct_some_col18_24          pct_bach_deg18_24 
+    ##                       2285                          0 
+    ##              pct_hs25_over        pct_bach_deg25_over 
     ##                          0                          0 
-    ##        pct_bach_deg25_over        pct_employed16_over 
-    ##                          0                        152 
-    ##      pct_unemployed16_over       pct_private_coverage 
+    ##        pct_employed16_over      pct_unemployed16_over 
+    ##                        152                          0 
+    ##       pct_private_coverage pct_private_coverage_alone 
+    ##                          0                        609 
+    ##      pct_emp_priv_coverage        pct_public_coverage 
     ##                          0                          0 
-    ## pct_private_coverage_alone      pct_emp_priv_coverage 
-    ##                        609                          0 
-    ##        pct_public_coverage  pct_public_coverage_alone 
+    ##  pct_public_coverage_alone                  pct_white 
     ##                          0                          0 
-    ##                  pct_white                  pct_black 
+    ##                  pct_black                  pct_asian 
     ##                          0                          0 
-    ##                  pct_asian             pct_other_race 
+    ##             pct_other_race     pct_married_households 
     ##                          0                          0 
-    ##     pct_married_households                 birth_rate 
-    ##                          0                          0
+    ##                 birth_rate 
+    ##                          0
 
 ``` r
-cancer_df = 
-  cancer_df %>%
-  select(-pct_employed16_over, -pct_private_coverage_alone) %>%
+cancer_df = cancer_df %>%
+  select(-pct_employed16_over, - pct_private_coverage_alone, - binned_inc)
+
   
-  select(target_death_rate, everything()) %>% 
-  mutate(state = fct_reorder(state, target_death_rate))
-str(cancer_df)
-```
+                            
 
-    ## Classes 'tbl_df', 'tbl' and 'data.frame':    3047 obs. of  30 variables:
-    ##  $ target_death_rate        : num  184 230 216 152 163 ...
-    ##  $ avg_ann_count            : num  143 323 221 1757 105 ...
-    ##  $ avg_deaths_per_year      : int  61 151 106 561 43 46 52 22 73 21 ...
-    ##  $ incidence_rate           : num  431 493 479 469 420 ...
-    ##  $ med_income               : int  35525 40269 38390 57908 35425 31558 31386 48216 42063 47423 ...
-    ##  $ pop_est2015              : int  24932 62577 32973 434211 25378 19027 22004 7228 20148 19254 ...
-    ##  $ poverty_percent          : num  21.4 22 19.4 11.6 26.9 26.3 27.2 10.3 17.8 19 ...
-    ##  $ study_per_cap            : num  0 0 0 415 0 ...
-    ##  $ median_age               : num  43.3 35.7 45.3 35.8 27.9 41 37 45.9 51.4 28.9 ...
-    ##  $ median_age_male          : num  40.7 34.7 42.7 35 27.8 39.1 36.4 45 49.7 28.3 ...
-    ##  $ median_age_female        : num  44.9 37.2 47.3 36.6 27.9 42.5 38.2 47.7 53.3 29.9 ...
-    ##  $ county                   : chr  "Abbeville County" "Acadia Parish" "Accomack County" "Ada County" ...
-    ##  $ state                    : Factor w/ 51 levels " Utah"," Hawaii",..: 39 47 35 5 43 51 45 19 18 22 ...
-    ##  $ avg_household_size       : num  2.52 2.7 2.29 2.61 2.36 2.5 2.78 2.25 2.47 3.24 ...
-    ##  $ percent_married          : num  46.8 47.3 52.6 53.6 39.1 50.9 52.7 56.2 50.9 56.9 ...
-    ##  $ pct_hs18_24              : num  40 35.9 40.4 30.1 12.9 25.6 47.6 46.1 44.6 36.9 ...
-    ##  $ pct_bach_deg18_24        : num  3.2 2.9 12.9 11.4 11.1 4.7 2.8 11.5 3.3 1.6 ...
-    ##  $ pct_hs25_over            : num  37.5 39.2 39.9 21.4 33.9 36.3 42.6 44.7 43.7 25.9 ...
-    ##  $ pct_bach_deg25_over      : num  8.6 7.6 11 24.8 15.2 9.3 10 11.9 8.5 9.1 ...
-    ##  $ pct_unemployed16_over    : num  10.7 10.1 6.8 6.6 7.9 7.7 7.9 3.2 10.1 9.6 ...
-    ##  $ pct_private_coverage     : num  56.6 56.5 61.8 76.1 73.9 56.1 38.6 75.5 63.9 45 ...
-    ##  $ pct_emp_priv_coverage    : num  37.6 38.9 37.3 53.6 50.6 34.2 26.6 43.4 34.1 30.5 ...
-    ##  $ pct_public_coverage      : num  43.8 37.4 36.7 23.7 27.4 40.9 41.9 38 50.8 40 ...
-    ##  $ pct_public_coverage_alone: num  25.9 23.1 18.4 11.1 13.2 23.8 29.4 14.2 22.6 30.5 ...
-    ##  $ pct_white                : num  69.9 79 68 91.4 93.5 ...
-    ##  $ pct_black                : num  27.95 17.43 28.68 1.14 2.07 ...
-    ##  $ pct_asian                : num  0 0.195 0.145 2.665 2.387 ...
-    ##  $ pct_other_race           : num  0.24 1.001 1.323 1.284 0.192 ...
-    ##  $ pct_married_households   : num  47.3 47.1 47.5 52.6 43.1 ...
-    ##  $ birth_rate               : num  5.82 6.94 4.35 4.78 3.77 ...
-
-``` r
-cancer_df %>% 
-  lm(target_death_rate ~ state, data = .) %>% summary()
+cancer_df %>%
+  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 + pct_hs25_over + pct_bach_deg25_over, data=.) %>%
+  summary()
 ```
 
     ## 
     ## Call:
-    ## lm(formula = target_death_rate ~ state, data = .)
+    ## lm(formula = target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + 
+    ##     pct_bach_deg18_24 + pct_some_col18_24 + pct_hs25_over + pct_bach_deg25_over, 
+    ##     data = .)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -79.841 -14.643   1.189  14.222 106.332 
+    ## 
+    ## Coefficients:
+    ##                      Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)          571.0955  1564.0002   0.365  0.71510    
+    ## pct_no_hs18_24        -4.1739    15.6310  -0.267  0.78952    
+    ## pct_hs18_24           -3.6694    15.6392  -0.235  0.81456    
+    ## pct_bach_deg18_24     -4.3610    15.6517  -0.279  0.78061    
+    ## pct_some_col18_24     -3.8261    15.6373  -0.245  0.80677    
+    ## pct_hs25_over          0.5149     0.1938   2.656  0.00807 ** 
+    ## pct_bach_deg25_over   -1.7899     0.2929  -6.112 1.58e-09 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 24.29 on 755 degrees of freedom
+    ##   (2285 observations deleted due to missingness)
+    ## Multiple R-squared:  0.2473, Adjusted R-squared:  0.2413 
+    ## F-statistic: 41.34 on 6 and 755 DF,  p-value: < 2.2e-16
+
+``` r
+cancer_df %>%
+  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 , data=.) %>%
+  summary()
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + 
+    ##     pct_bach_deg18_24 + pct_some_col18_24, data = .)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -83.919 -15.657  -0.327  15.587 108.040 
+    ## 
+    ## Coefficients:
+    ##                   Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept)        1704.13    1681.01   1.014    0.311
+    ## pct_no_hs18_24      -15.33      16.80  -0.912    0.362
+    ## pct_hs18_24         -14.83      16.81  -0.882    0.378
+    ## pct_bach_deg18_24   -16.94      16.82  -1.007    0.314
+    ## pct_some_col18_24   -15.33      16.81  -0.912    0.362
+    ## 
+    ## Residual standard error: 26.18 on 757 degrees of freedom
+    ##   (2285 observations deleted due to missingness)
+    ## Multiple R-squared:  0.1233, Adjusted R-squared:  0.1187 
+    ## F-statistic: 26.63 on 4 and 757 DF,  p-value: < 2.2e-16
+
+``` r
+data=cancer_df %>%
+  select(target_death_rate, pct_no_hs18_24 , pct_hs18_24 , pct_bach_deg18_24 , pct_some_col18_24 , pct_hs25_over , pct_bach_deg25_over)
+cor(cancer_df)
+```
+
+    ##                           avg_ann_count avg_deaths_per_year
+    ## avg_ann_count               1.000000000          0.93940778
+    ## avg_deaths_per_year         0.939407783          1.00000000
+    ## target_death_rate          -0.143531620         -0.09071516
+    ## incidence_rate              0.073553175          0.06268986
+    ## med_income                  0.269144676          0.22320676
+    ## pop_est2015                 0.926893538          0.97763406
+    ## poverty_percent            -0.135693914         -0.06691794
+    ## study_per_cap               0.082071379          0.06348833
+    ## median_age                 -0.024097510         -0.02459872
+    ## median_age_male            -0.124968609         -0.14848720
+    ## median_age_female          -0.122844098         -0.14406921
+    ## avg_household_size          0.064787793          0.08616148
+    ## percent_married            -0.106107711         -0.18102911
+    ## pct_no_hs18_24             -0.143326877         -0.13679416
+    ## pct_hs18_24                -0.182053929         -0.15141783
+    ## pct_some_col18_24                    NA                  NA
+    ## pct_bach_deg18_24           0.284176205          0.25976080
+    ## pct_hs25_over              -0.311375212         -0.29592941
+    ## pct_bach_deg25_over         0.321020553          0.29320978
+    ## pct_unemployed16_over      -0.009015804          0.06970063
+    ## pct_private_coverage        0.132244379          0.05618256
+    ## pct_emp_priv_coverage       0.202348916          0.16012370
+    ## pct_public_coverage        -0.173548301         -0.13168651
+    ## pct_public_coverage_alone  -0.093699079         -0.02733797
+    ## pct_white                  -0.136501141         -0.18715902
+    ## pct_black                   0.031375602          0.08460710
+    ## pct_asian                   0.435071173          0.44307423
+    ## pct_other_race              0.209183775          0.21514936
+    ## pct_married_households     -0.106220868         -0.16026613
+    ## birth_rate                 -0.034507632         -0.07442001
+    ##                           target_death_rate incidence_rate   med_income
+    ## avg_ann_count                  -0.143531620    0.073553175  0.269144676
+    ## avg_deaths_per_year            -0.090715160    0.062689857  0.223206757
+    ## target_death_rate               1.000000000    0.449431698 -0.428614927
+    ## incidence_rate                  0.449431698    1.000000000 -0.001036186
+    ## med_income                     -0.428614927   -0.001036186  1.000000000
+    ## pop_est2015                    -0.120073096    0.026912352  0.235522860
+    ## poverty_percent                 0.429388980    0.009046252 -0.788965239
+    ## study_per_cap                  -0.022285011    0.077282631  0.044002767
+    ## median_age                      0.004375077    0.018089172 -0.013287743
+    ## median_age_male                -0.021929429   -0.014733235 -0.091662642
+    ## median_age_female               0.012048386   -0.009105564 -0.153278401
+    ## avg_household_size             -0.036905314   -0.118399973  0.112065314
+    ## percent_married                -0.266820464   -0.119524484  0.355122865
+    ## pct_no_hs18_24                  0.088462610   -0.170762076 -0.289383120
+    ## pct_hs18_24                     0.261975940    0.022643795 -0.190005681
+    ## pct_some_col18_24                        NA             NA           NA
+    ## pct_bach_deg18_24              -0.287817410    0.046835423  0.492810246
+    ## pct_hs25_over                   0.404589076    0.121724595 -0.471348267
+    ## pct_bach_deg25_over            -0.485477318   -0.038177165  0.704928245
+    ## pct_unemployed16_over           0.378412442    0.099979455 -0.453107661
+    ## pct_private_coverage           -0.386065507    0.105174269  0.724174768
+    ## pct_emp_priv_coverage          -0.267399428    0.149824526  0.747293549
+    ## pct_public_coverage             0.404571656    0.046108610 -0.754821751
+    ## pct_public_coverage_alone       0.449357576    0.040812287 -0.719756152
+    ## pct_white                      -0.177399980   -0.014509829  0.167225441
+    ## pct_black                       0.257023560    0.113488959 -0.270231619
+    ## pct_asian                      -0.186331105   -0.008123427  0.425844240
+    ## pct_other_race                 -0.189893571   -0.208748336  0.083634870
+    ## pct_married_households         -0.293325341   -0.152176321  0.446082895
+    ## birth_rate                     -0.087406970   -0.118181288 -0.010194553
+    ##                           pop_est2015 poverty_percent study_per_cap
+    ## avg_ann_count              0.92689354    -0.135693914   0.082071379
+    ## avg_deaths_per_year        0.97763406    -0.066917939   0.063488331
+    ## target_death_rate         -0.12007310     0.429388980  -0.022285011
+    ## incidence_rate             0.02691235     0.009046252   0.077282631
+    ## med_income                 0.23552286    -0.788965239   0.044002767
+    ## pop_est2015                1.00000000    -0.065299150   0.055721518
+    ## poverty_percent           -0.06529915     1.000000000  -0.055652350
+    ## study_per_cap              0.05572152    -0.055652350   1.000000000
+    ## median_age                -0.02521899    -0.029279996  -0.026029802
+    ## median_age_male           -0.17660764    -0.214001049  -0.036647292
+    ## median_age_female         -0.17793232    -0.148163541  -0.030577044
+    ## avg_household_size         0.10994045     0.074307601  -0.004070887
+    ## percent_married           -0.16046328    -0.642856868  -0.038143262
+    ## pct_no_hs18_24            -0.12658242     0.288106366  -0.090387320
+    ## pct_hs18_24               -0.15182121     0.094211082  -0.057035136
+    ## pct_some_col18_24                  NA              NA            NA
+    ## pct_bach_deg18_24          0.24837541    -0.387121904   0.063819117
+    ## pct_hs25_over             -0.31184921     0.194361157  -0.085127983
+    ## pct_bach_deg25_over        0.29746337    -0.531599691   0.108593794
+    ## pct_unemployed16_over      0.05076814     0.655148122  -0.031956813
+    ## pct_private_coverage       0.05267651    -0.822534292   0.092544651
+    ## pct_emp_priv_coverage      0.15864952    -0.683099657   0.100063185
+    ## pct_public_coverage       -0.16006562     0.651162060  -0.051496680
+    ## pct_public_coverage_alone -0.04146881     0.798642030  -0.055511989
+    ## pct_white                 -0.19009450    -0.509432808   0.023291042
+    ## pct_black                  0.07304407     0.511529663  -0.019761153
+    ## pct_asian                  0.46416779    -0.157288704   0.062543075
+    ## pct_other_race             0.24146800     0.047095893  -0.015247481
+    ## pct_married_households    -0.12797946    -0.604952784  -0.051735616
+    ## birth_rate                -0.05774018    -0.012282511   0.010676193
+    ##                             median_age median_age_male median_age_female
+    ## avg_ann_count             -0.024097510    -0.124968609      -0.122844098
+    ## avg_deaths_per_year       -0.024598722    -0.148487199      -0.144069211
+    ## target_death_rate          0.004375077    -0.021929429       0.012048386
+    ## incidence_rate             0.018089172    -0.014733235      -0.009105564
+    ## med_income                -0.013287743    -0.091662642      -0.153278401
+    ## pop_est2015               -0.025218994    -0.176607643      -0.177932323
+    ## poverty_percent           -0.029279996    -0.214001049      -0.148163541
+    ## study_per_cap             -0.026029802    -0.036647292      -0.030577044
+    ## median_age                 1.000000000     0.129119478       0.124678372
+    ## median_age_male            0.129119478     1.000000000       0.933696103
+    ## median_age_female          0.124678372     0.933696103       1.000000000
+    ## avg_household_size        -0.031944148    -0.343188659      -0.367585149
+    ## percent_married            0.046371506     0.449986173       0.375207983
+    ## pct_no_hs18_24             0.006178084     0.100485523       0.136361328
+    ## pct_hs18_24                0.050573668     0.241309928       0.242827279
+    ## pct_some_col18_24                   NA              NA                NA
+    ## pct_bach_deg18_24         -0.016909407    -0.034135247      -0.070698993
+    ## pct_hs25_over              0.036587378     0.318277051       0.344839719
+    ## pct_bach_deg25_over       -0.020352194    -0.131599355      -0.180845331
+    ## pct_unemployed16_over      0.018590443    -0.142737472      -0.111161313
+    ## pct_private_coverage       0.004665111     0.082231778       0.046909158
+    ## pct_emp_priv_coverage     -0.036926459    -0.208663968      -0.252221140
+    ## pct_public_coverage        0.049060211     0.398967231       0.455496465
+    ## pct_public_coverage_alone -0.003297872     0.002478719       0.047659145
+    ## pct_white                  0.035009366     0.398044362       0.339803910
+    ## pct_black                 -0.017173240    -0.242748132      -0.156728442
+    ## pct_asian                 -0.038423911    -0.238322374      -0.258747912
+    ## pct_other_race            -0.030276508    -0.266655447      -0.274119578
+    ## pct_married_households     0.014503609     0.222277744       0.161506831
+    ## birth_rate                -0.008276233    -0.104105160      -0.098812608
+    ##                           avg_household_size percent_married
+    ## avg_ann_count                    0.064787793     -0.10610771
+    ## avg_deaths_per_year              0.086161477     -0.18102911
+    ## target_death_rate               -0.036905314     -0.26682046
+    ## incidence_rate                  -0.118399973     -0.11952448
+    ## med_income                       0.112065314      0.35512286
+    ## pop_est2015                      0.109940447     -0.16046328
+    ## poverty_percent                  0.074307601     -0.64285687
+    ## study_per_cap                   -0.004070887     -0.03814326
+    ## median_age                      -0.031944148      0.04637151
+    ## median_age_male                 -0.343188659      0.44998617
+    ## median_age_female               -0.367585149      0.37520798
+    ## avg_household_size               1.000000000     -0.10051170
+    ## percent_married                 -0.100511698      1.00000000
+    ## pct_no_hs18_24                   0.064718590     -0.01237458
+    ## pct_hs18_24                      0.027228204      0.13279244
+    ## pct_some_col18_24                         NA              NA
+    ## pct_bach_deg18_24               -0.060960847      0.05303732
+    ## pct_hs25_over                   -0.138728398      0.10243370
+    ## pct_bach_deg25_over              0.013917803      0.10358519
+    ## pct_unemployed16_over            0.131506325     -0.55148349
+    ## pct_private_coverage            -0.144390600      0.44945161
+    ## pct_emp_priv_coverage            0.011111227      0.23289907
+    ## pct_public_coverage             -0.134812156     -0.24697154
+    ## pct_public_coverage_alone        0.061114735     -0.45998992
+    ## pct_white                       -0.188445815      0.67741994
+    ## pct_black                        0.030277977     -0.62235733
+    ## pct_asian                        0.131535433     -0.14869134
+    ## pct_other_race                   0.229439641     -0.10466945
+    ## pct_married_households           0.091450373      0.87026054
+    ## birth_rate                       0.075917596      0.14140393
+    ##                           pct_no_hs18_24 pct_hs18_24 pct_some_col18_24
+    ## avg_ann_count               -0.143326877 -0.18205393                NA
+    ## avg_deaths_per_year         -0.136794157 -0.15141783                NA
+    ## target_death_rate            0.088462610  0.26197594                NA
+    ## incidence_rate              -0.170762076  0.02264379                NA
+    ## med_income                  -0.289383120 -0.19000568                NA
+    ## pop_est2015                 -0.126582418 -0.15182121                NA
+    ## poverty_percent              0.288106366  0.09421108                NA
+    ## study_per_cap               -0.090387320 -0.05703514                NA
+    ## median_age                   0.006178084  0.05057367                NA
+    ## median_age_male              0.100485523  0.24130993                NA
+    ## median_age_female            0.136361328  0.24282728                NA
+    ## avg_household_size           0.064718590  0.02722820                NA
+    ## percent_married             -0.012374580  0.13279244                NA
+    ## pct_no_hs18_24               1.000000000  0.08462928                NA
+    ## pct_hs18_24                  0.084629285  1.00000000                NA
+    ## pct_some_col18_24                     NA          NA                 1
+    ## pct_bach_deg18_24           -0.381422016 -0.38933391                NA
+    ## pct_hs25_over                0.217069496  0.43892915                NA
+    ## pct_bach_deg25_over         -0.396578614 -0.40475397                NA
+    ## pct_unemployed16_over        0.181193218  0.13069406                NA
+    ## pct_private_coverage        -0.454750805 -0.25385075                NA
+    ## pct_emp_priv_coverage       -0.429994050 -0.24449415                NA
+    ## pct_public_coverage          0.318540309  0.27822049                NA
+    ## pct_public_coverage_alone    0.327269783  0.23412398                NA
+    ## pct_white                   -0.157282267  0.04530637                NA
+    ## pct_black                    0.116805155 -0.02486791                NA
+    ## pct_asian                   -0.217534569 -0.19977046                NA
+    ## pct_other_race               0.126256354 -0.06041485                NA
+    ## pct_married_households       0.005339552  0.12004023                NA
+    ## birth_rate                   0.125894802  0.05822688                NA
+    ##                           pct_bach_deg18_24 pct_hs25_over
+    ## avg_ann_count                  0.2841762046   -0.31137521
+    ## avg_deaths_per_year            0.2597607979   -0.29592941
+    ## target_death_rate             -0.2878174102    0.40458908
+    ## incidence_rate                 0.0468354233    0.12172459
+    ## med_income                     0.4928102457   -0.47134827
+    ## pop_est2015                    0.2483754141   -0.31184921
+    ## poverty_percent               -0.3871219044    0.19436116
+    ## study_per_cap                  0.0638191165   -0.08512798
+    ## median_age                    -0.0169094070    0.03658738
+    ## median_age_male               -0.0341352465    0.31827705
+    ## median_age_female             -0.0706989935    0.34483972
+    ## avg_household_size            -0.0609608467   -0.13872840
+    ## percent_married                0.0530373214    0.10243370
+    ## pct_no_hs18_24                -0.3814220162    0.21706950
+    ## pct_hs18_24                   -0.3893339119    0.43892915
+    ## pct_some_col18_24                        NA            NA
+    ## pct_bach_deg18_24              1.0000000000   -0.38404878
+    ## pct_hs25_over                 -0.3840487785    1.00000000
+    ## pct_bach_deg25_over            0.5998141845   -0.74061122
+    ## pct_unemployed16_over         -0.3089196535    0.08230552
+    ## pct_private_coverage           0.4877417395   -0.22193481
+    ## pct_emp_priv_coverage          0.4509960515   -0.22280299
+    ## pct_public_coverage           -0.4224703062    0.42797377
+    ## pct_public_coverage_alone     -0.4218045942    0.29714338
+    ## pct_white                      0.0691328203    0.18804475
+    ## pct_black                     -0.0936139964   -0.02444526
+    ## pct_asian                      0.3458827707   -0.43656094
+    ## pct_other_race                 0.0065469377   -0.28561114
+    ## pct_married_households        -0.0001044447    0.06217592
+    ## birth_rate                    -0.1250734830    0.01660026
+    ##                           pct_bach_deg25_over pct_unemployed16_over
+    ## avg_ann_count                      0.32102055          -0.009015804
+    ## avg_deaths_per_year                0.29320978           0.069700627
+    ## target_death_rate                 -0.48547732           0.378412442
+    ## incidence_rate                    -0.03817717           0.099979455
+    ## med_income                         0.70492824          -0.453107661
+    ## pop_est2015                        0.29746337           0.050768138
+    ## poverty_percent                   -0.53159969           0.655148122
+    ## study_per_cap                      0.10859379          -0.031956813
+    ## median_age                        -0.02035219           0.018590443
+    ## median_age_male                   -0.13159935          -0.142737472
+    ## median_age_female                 -0.18084533          -0.111161313
+    ## avg_household_size                 0.01391780           0.131506325
+    ## percent_married                    0.10358519          -0.551483488
+    ## pct_no_hs18_24                    -0.39657861           0.181193218
+    ## pct_hs18_24                       -0.40475397           0.130694061
+    ## pct_some_col18_24                          NA                    NA
+    ## pct_bach_deg18_24                  0.59981418          -0.308919654
+    ## pct_hs25_over                     -0.74061122           0.082305516
+    ## pct_bach_deg25_over                1.00000000          -0.372980047
+    ## pct_unemployed16_over             -0.37298005           1.000000000
+    ## pct_private_coverage               0.60324766          -0.634317281
+    ## pct_emp_priv_coverage              0.53908363          -0.474745168
+    ## pct_public_coverage               -0.63609480           0.529821296
+    ## pct_public_coverage_alone         -0.60575990           0.655365736
+    ## pct_white                          0.04865228          -0.501755245
+    ## pct_black                         -0.14640875           0.469273102
+    ## pct_asian                          0.43796288          -0.022020273
+    ## pct_other_race                     0.03907545           0.028463247
+    ## pct_married_households             0.09813386          -0.469609014
+    ## birth_rate                        -0.08794027          -0.067906273
+    ##                           pct_private_coverage pct_emp_priv_coverage
+    ## avg_ann_count                      0.132244379            0.20234892
+    ## avg_deaths_per_year                0.056182557            0.16012370
+    ## target_death_rate                 -0.386065507           -0.26739943
+    ## incidence_rate                     0.105174269            0.14982453
+    ## med_income                         0.724174768            0.74729355
+    ## pop_est2015                        0.052676513            0.15864952
+    ## poverty_percent                   -0.822534292           -0.68309966
+    ## study_per_cap                      0.092544651            0.10006319
+    ## median_age                         0.004665111           -0.03692646
+    ## median_age_male                    0.082231778           -0.20866397
+    ## median_age_female                  0.046909158           -0.25222114
+    ## avg_household_size                -0.144390600            0.01111123
+    ## percent_married                    0.449451608            0.23289907
+    ## pct_no_hs18_24                    -0.454750805           -0.42999405
+    ## pct_hs18_24                       -0.253850745           -0.24449415
+    ## pct_some_col18_24                           NA                    NA
+    ## pct_bach_deg18_24                  0.487741739            0.45099605
+    ## pct_hs25_over                     -0.221934807           -0.22280299
+    ## pct_bach_deg25_over                0.603247665            0.53908363
+    ## pct_unemployed16_over             -0.634317281           -0.47474517
+    ## pct_private_coverage               1.000000000            0.82745884
+    ## pct_emp_priv_coverage              0.827458844            1.00000000
+    ## pct_public_coverage               -0.720011521           -0.77831482
+    ## pct_public_coverage_alone         -0.886233694           -0.72882303
+    ## pct_white                          0.429031447            0.26981502
+    ## pct_black                         -0.345172126           -0.23738803
+    ## pct_asian                          0.189331755            0.28248429
+    ## pct_other_race                    -0.176300307           -0.06422598
+    ## pct_married_households             0.434640055            0.32256933
+    ## birth_rate                        -0.040436613           -0.09387800
+    ##                           pct_public_coverage pct_public_coverage_alone
+    ## avg_ann_count                     -0.17354830              -0.093699079
+    ## avg_deaths_per_year               -0.13168651              -0.027337969
+    ## target_death_rate                  0.40457166               0.449357576
+    ## incidence_rate                     0.04610861               0.040812287
+    ## med_income                        -0.75482175              -0.719756152
+    ## pop_est2015                       -0.16006562              -0.041468807
+    ## poverty_percent                    0.65116206               0.798642030
+    ## study_per_cap                     -0.05149668              -0.055511989
+    ## median_age                         0.04906021              -0.003297872
+    ## median_age_male                    0.39896723               0.002478719
+    ## median_age_female                  0.45549646               0.047659145
+    ## avg_household_size                -0.13481216               0.061114735
+    ## percent_married                   -0.24697154              -0.459989923
+    ## pct_no_hs18_24                     0.31854031               0.327269783
+    ## pct_hs18_24                        0.27822049               0.234123984
+    ## pct_some_col18_24                          NA                        NA
+    ## pct_bach_deg18_24                 -0.42247031              -0.421804594
+    ## pct_hs25_over                      0.42797377               0.297143381
+    ## pct_bach_deg25_over               -0.63609480              -0.605759903
+    ## pct_unemployed16_over              0.52982130               0.655365736
+    ## pct_private_coverage              -0.72001152              -0.886233694
+    ## pct_emp_priv_coverage             -0.77831482              -0.728823026
+    ## pct_public_coverage                1.00000000               0.865832788
+    ## pct_public_coverage_alone          0.86583279               1.000000000
+    ## pct_white                         -0.13370507              -0.361026352
+    ## pct_black                          0.19559747               0.330110279
+    ## pct_asian                         -0.30562546              -0.181380191
+    ## pct_other_race                    -0.07870778               0.083755384
+    ## pct_married_households            -0.36217051              -0.473993882
+    ## birth_rate                        -0.03053076              -0.004752695
+    ##                              pct_white   pct_black    pct_asian
+    ## avg_ann_count             -0.136501141  0.03137560  0.435071173
+    ## avg_deaths_per_year       -0.187159023  0.08460710  0.443074226
+    ## target_death_rate         -0.177399980  0.25702356 -0.186331105
+    ## incidence_rate            -0.014509829  0.11348896 -0.008123427
+    ## med_income                 0.167225441 -0.27023162  0.425844240
+    ## pop_est2015               -0.190094503  0.07304407  0.464167791
+    ## poverty_percent           -0.509432808  0.51152966 -0.157288704
+    ## study_per_cap              0.023291042 -0.01976115  0.062543075
+    ## median_age                 0.035009366 -0.01717324 -0.038423911
+    ## median_age_male            0.398044362 -0.24274813 -0.238322374
+    ## median_age_female          0.339803910 -0.15672844 -0.258747912
+    ## avg_household_size        -0.188445815  0.03027798  0.131535433
+    ## percent_married            0.677419940 -0.62235733 -0.148691337
+    ## pct_no_hs18_24            -0.157282267  0.11680516 -0.217534569
+    ## pct_hs18_24                0.045306371 -0.02486791 -0.199770462
+    ## pct_some_col18_24                   NA          NA           NA
+    ## pct_bach_deg18_24          0.069132820 -0.09361400  0.345882771
+    ## pct_hs25_over              0.188044752 -0.02444526 -0.436560938
+    ## pct_bach_deg25_over        0.048652281 -0.14640875  0.437962881
+    ## pct_unemployed16_over     -0.501755245  0.46927310 -0.022020273
+    ## pct_private_coverage       0.429031447 -0.34517213  0.189331755
+    ## pct_emp_priv_coverage      0.269815023 -0.23738803  0.282484289
+    ## pct_public_coverage       -0.133705071  0.19559747 -0.305625464
+    ## pct_public_coverage_alone -0.361026352  0.33011028 -0.181380191
+    ## pct_white                  1.000000000 -0.82845885 -0.265676411
+    ## pct_black                 -0.828458852  1.00000000  0.016583407
+    ## pct_asian                 -0.265676411  0.01658341  1.000000000
+    ## pct_other_race            -0.233692379 -0.02300131  0.200781103
+    ## pct_married_households     0.596771068 -0.57359245 -0.086602036
+    ## birth_rate                -0.008958097 -0.06780483 -0.061946987
+    ##                           pct_other_race pct_married_households
+    ## avg_ann_count                0.209183775          -0.1062208681
+    ## avg_deaths_per_year          0.215149359          -0.1602661296
+    ## target_death_rate           -0.189893571          -0.2933253405
+    ## incidence_rate              -0.208748336          -0.1521763205
+    ## med_income                   0.083634870           0.4460828953
+    ## pop_est2015                  0.241468004          -0.1279794627
+    ## poverty_percent              0.047095893          -0.6049527844
+    ## study_per_cap               -0.015247481          -0.0517356157
+    ## median_age                  -0.030276508           0.0145036093
+    ## median_age_male             -0.266655447           0.2222777445
+    ## median_age_female           -0.274119578           0.1615068308
+    ## avg_household_size           0.229439641           0.0914503733
+    ## percent_married             -0.104669448           0.8702605365
+    ## pct_no_hs18_24               0.126256354           0.0053395517
+    ## pct_hs18_24                 -0.060414849           0.1200402276
+    ## pct_some_col18_24                     NA                     NA
+    ## pct_bach_deg18_24            0.006546938          -0.0001044447
+    ## pct_hs25_over               -0.285611137           0.0621759178
+    ## pct_bach_deg25_over          0.039075451           0.0981338597
+    ## pct_unemployed16_over        0.028463247          -0.4696090139
+    ## pct_private_coverage        -0.176300307           0.4346400550
+    ## pct_emp_priv_coverage       -0.064225979           0.3225693263
+    ## pct_public_coverage         -0.078707776          -0.3621705058
+    ## pct_public_coverage_alone    0.083755384          -0.4739938818
+    ## pct_white                   -0.233692379           0.5967710681
+    ## pct_black                   -0.023001308          -0.5735924510
+    ## pct_asian                    0.200781103          -0.0866020358
+    ## pct_other_race               1.000000000          -0.0273522962
+    ## pct_married_households      -0.027352296           1.0000000000
+    ## birth_rate                   0.059829476           0.1022633001
+    ##                             birth_rate
+    ## avg_ann_count             -0.034507632
+    ## avg_deaths_per_year       -0.074420014
+    ## target_death_rate         -0.087406970
+    ## incidence_rate            -0.118181288
+    ## med_income                -0.010194553
+    ## pop_est2015               -0.057740178
+    ## poverty_percent           -0.012282511
+    ## study_per_cap              0.010676193
+    ## median_age                -0.008276233
+    ## median_age_male           -0.104105160
+    ## median_age_female         -0.098812608
+    ## avg_household_size         0.075917596
+    ## percent_married            0.141403930
+    ## pct_no_hs18_24             0.125894802
+    ## pct_hs18_24                0.058226877
+    ## pct_some_col18_24                   NA
+    ## pct_bach_deg18_24         -0.125073483
+    ## pct_hs25_over              0.016600264
+    ## pct_bach_deg25_over       -0.087940271
+    ## pct_unemployed16_over     -0.067906273
+    ## pct_private_coverage      -0.040436613
+    ## pct_emp_priv_coverage     -0.093878001
+    ## pct_public_coverage       -0.030530759
+    ## pct_public_coverage_alone -0.004752695
+    ## pct_white                 -0.008958097
+    ## pct_black                 -0.067804827
+    ## pct_asian                 -0.061946987
+    ## pct_other_race             0.059829476
+    ## pct_married_households     0.102263300
+    ## birth_rate                 1.000000000
+
+``` r
+a=cancer_df %>%
+  select(target_death_rate, median_age , median_age_male, median_age_female) 
+lm(target_death_rate ~ median_age + median_age_male+ median_age_female, data=a)%>%
+  summary()
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ median_age + median_age_male + 
+    ##     median_age_female, data = a)
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -105.285  -13.750   -0.396   12.852  183.370 
+    ## -114.936  -17.956   -0.653   16.245  194.886 
     ## 
     ## Coefficients:
-    ##                            Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                 135.752      4.389  30.931  < 2e-16 ***
-    ## state Hawaii                  7.223     12.218   0.591 0.554443    
-    ## state Colorado                5.810      5.285   1.099 0.271717    
-    ## state Arizona                13.335      7.344   1.816 0.069510 .  
-    ## state Idaho                  18.451      5.625   3.280 0.001050 ** 
-    ## state Wyoming                23.235      6.471   3.591 0.000335 ***
-    ## state Connecticut            21.961      9.180   2.392 0.016808 *  
-    ## state New Mexico             20.429      5.959   3.428 0.000616 ***
-    ## state California             22.345      5.328   4.194 2.82e-05 ***
-    ## state Nebraska               24.802      5.076   4.886 1.08e-06 ***
-    ## state Minnesota              25.730      5.024   5.121 3.22e-07 ***
-    ## state South Dakota           27.794      5.299   5.245 1.67e-07 ***
-    ## state Massachusetts          29.048      7.511   3.868 0.000112 ***
-    ## state North Dakota           24.609      5.428   4.534 6.02e-06 ***
-    ## state Rhode Island           29.468     11.103   2.654 0.007995 ** 
-    ## state Montana                27.434      5.486   5.001 6.05e-07 ***
-    ## state Kansas                 32.082      4.936   6.500 9.37e-11 ***
-    ## state Wisconsin              36.622      5.146   7.116 1.38e-12 ***
-    ## state Iowa                   30.737      4.951   6.208 6.11e-10 ***
-    ## state New Jersey             32.881      6.635   4.955 7.62e-07 ***
-    ## state Oregon                 34.537      5.806   5.949 3.02e-09 ***
-    ## state Washington             30.740      5.709   5.384 7.84e-08 ***
-    ## state New Hampshire          35.128      8.442   4.161 3.26e-05 ***
-    ## state New York               35.888      5.258   6.825 1.06e-11 ***
-    ## state Texas                  35.834      4.636   7.729 1.47e-14 ***
-    ## state Vermont                40.520      7.511   5.395 7.39e-08 ***
-    ## state Maryland               40.727      6.398   6.366 2.24e-10 ***
-    ## state Florida                43.678      5.210   8.384  < 2e-16 ***
-    ## state Delaware               43.115     13.879   3.107 0.001911 ** 
-    ## state Pennsylvania           39.671      5.199   7.631 3.11e-14 ***
-    ## state Nevada                 41.683      7.061   5.903 3.96e-09 ***
-    ## state Michigan               42.070      5.053   8.326  < 2e-16 ***
-    ## state North Carolina         42.155      4.951   8.514  < 2e-16 ***
-    ## state Illinois               47.473      4.936   9.618  < 2e-16 ***
-    ## state Virginia               46.844      4.840   9.679  < 2e-16 ***
-    ## state District of Columbia   46.548     23.224   2.004 0.045125 *  
-    ## state Georgia                47.044      4.756   9.892  < 2e-16 ***
-    ## state Maine                  47.398      7.195   6.588 5.26e-11 ***
-    ## state South Carolina         52.755      5.529   9.542  < 2e-16 ***
-    ## state Indiana                52.369      4.992  10.492  < 2e-16 ***
-    ## state Ohio                   51.131      5.024  10.177  < 2e-16 ***
-    ## state Alaska                 57.665      6.939   8.310  < 2e-16 ***
-    ## state Missouri               53.943      4.877  11.061  < 2e-16 ***
-    ## state Alabama                56.977      5.246  10.862  < 2e-16 ***
-    ## state Oklahoma               58.197      5.101  11.410  < 2e-16 ***
-    ## state West Virginia          60.959      5.359  11.375  < 2e-16 ***
-    ## state Louisiana              61.922      5.233  11.832  < 2e-16 ***
-    ## state Tennessee              65.124      4.974  13.094  < 2e-16 ***
-    ## state Arkansas               64.339      5.118  12.570  < 2e-16 ***
-    ## state Mississippi            67.086      5.060  13.258  < 2e-16 ***
-    ## state Kentucky               79.564      4.858  16.379  < 2e-16 ***
+    ##                     Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)       176.987749   4.024148  43.981  < 2e-16 ***
+    ## median_age          0.003839   0.011150   0.344    0.731    
+    ## median_age_male    -1.377503   0.267834  -5.143 2.87e-07 ***
+    ## median_age_female   1.329004   0.264301   5.028 5.23e-07 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 22.81 on 2996 degrees of freedom
-    ## Multiple R-squared:  0.3358, Adjusted R-squared:  0.3247 
-    ## F-statistic: 30.29 on 50 and 2996 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 27.64 on 3043 degrees of freedom
+    ## Multiple R-squared:  0.00877,    Adjusted R-squared:  0.007793 
+    ## F-statistic: 8.974 on 3 and 3043 DF,  p-value: 6.456e-06
 
 ``` r
-cancer_df=
-  cancer_df %>%
-  select(-state, -county)
-
-
-mult.fit = lm(target_death_rate ~ ., data=cancer_df)     # stepwise regression, and get 17 variables left#
-step(mult.fit, direction='both')
-```
-
-    ## Start:  AIC=18083.53
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + study_per_cap + 
-    ##     median_age + median_age_male + median_age_female + avg_household_size + 
-    ##     percent_married + pct_hs18_24 + pct_bach_deg18_24 + pct_hs25_over + 
-    ##     pct_bach_deg25_over + pct_unemployed16_over + pct_private_coverage + 
-    ##     pct_emp_priv_coverage + pct_public_coverage + pct_public_coverage_alone + 
-    ##     pct_white + pct_black + pct_asian + pct_other_race + pct_married_households + 
-    ##     birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - pct_public_coverage        1         2 1130759 18082
-    ## - median_age_female          1         3 1130761 18082
-    ## - study_per_cap              1         6 1130763 18082
-    ## - pct_asian                  1        40 1130797 18082
-    ## - median_age                 1        44 1130801 18082
-    ## - pct_public_coverage_alone  1        94 1130852 18082
-    ## - avg_household_size         1        97 1130854 18082
-    ## - pct_bach_deg18_24          1       121 1130878 18082
-    ## - pct_black                  1       170 1130928 18082
-    ## - med_income                 1       395 1131152 18083
-    ## <none>                                   1130757 18084
-    ## - pct_white                  1      1140 1131898 18085
-    ## - median_age_male            1      2060 1132817 18087
-    ## - pct_unemployed16_over      1      2199 1132956 18088
-    ## - pop_est2015                1      3240 1133998 18090
-    ## - pct_emp_priv_coverage      1      3357 1134115 18091
-    ## - pct_private_coverage       1      3815 1134573 18092
-    ## - pct_hs25_over              1      5444 1136201 18096
-    ## - poverty_percent            1      6145 1136902 18098
-    ## - avg_ann_count              1      8334 1139091 18104
-    ## - birth_rate                 1      9000 1139758 18106
-    ## - avg_deaths_per_year        1      9143 1139901 18106
-    ## - pct_hs18_24                1     11842 1142599 18113
-    ## - percent_married            1     13718 1144475 18118
-    ## - pct_married_households     1     16130 1146888 18125
-    ## - pct_other_race             1     20089 1150847 18135
-    ## - pct_bach_deg25_over        1     23814 1154571 18145
-    ## - incidence_rate             1    267736 1398493 18729
-    ## 
-    ## Step:  AIC=18081.54
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + study_per_cap + 
-    ##     median_age + median_age_male + median_age_female + avg_household_size + 
-    ##     percent_married + pct_hs18_24 + pct_bach_deg18_24 + pct_hs25_over + 
-    ##     pct_bach_deg25_over + pct_unemployed16_over + pct_private_coverage + 
-    ##     pct_emp_priv_coverage + pct_public_coverage_alone + pct_white + 
-    ##     pct_black + pct_asian + pct_other_race + pct_married_households + 
-    ##     birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - median_age_female          1         2 1130761 18080
-    ## - study_per_cap              1         6 1130765 18080
-    ## - pct_asian                  1        40 1130799 18080
-    ## - median_age                 1        44 1130803 18080
-    ## - avg_household_size         1        96 1130855 18080
-    ## - pct_bach_deg18_24          1       124 1130883 18080
-    ## - pct_black                  1       175 1130935 18080
-    ## - med_income                 1       396 1131155 18081
-    ## - pct_public_coverage_alone  1       403 1131162 18081
-    ## <none>                                   1130759 18082
-    ## - pct_white                  1      1139 1131898 18083
-    ## + pct_public_coverage        1         2 1130757 18084
-    ## - median_age_male            1      2093 1132852 18085
-    ## - pct_unemployed16_over      1      2282 1133041 18086
-    ## - pop_est2015                1      3254 1134013 18088
-    ## - pct_emp_priv_coverage      1      4099 1134858 18091
-    ## - pct_private_coverage       1      4812 1135571 18093
-    ## - pct_hs25_over              1      5445 1136204 18094
-    ## - poverty_percent            1      6172 1136931 18096
-    ## - avg_ann_count              1      8333 1139092 18102
-    ## - birth_rate                 1      9002 1139761 18104
-    ## - avg_deaths_per_year        1      9159 1139918 18104
-    ## - pct_hs18_24                1     11881 1142640 18111
-    ## - percent_married            1     13755 1144514 18116
-    ## - pct_married_households     1     16169 1146928 18123
-    ## - pct_other_race             1     20101 1150860 18133
-    ## - pct_bach_deg25_over        1     24603 1155362 18145
-    ## - incidence_rate             1    267813 1398572 18727
-    ## 
-    ## Step:  AIC=18079.54
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + study_per_cap + 
-    ##     median_age + median_age_male + avg_household_size + percent_married + 
-    ##     pct_hs18_24 + pct_bach_deg18_24 + pct_hs25_over + pct_bach_deg25_over + 
-    ##     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-    ##     pct_public_coverage_alone + pct_white + pct_black + pct_asian + 
-    ##     pct_other_race + pct_married_households + birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - study_per_cap              1         6 1130767 18078
-    ## - pct_asian                  1        40 1130801 18078
-    ## - median_age                 1        45 1130806 18078
-    ## - avg_household_size         1       100 1130861 18078
-    ## - pct_bach_deg18_24          1       123 1130884 18078
-    ## - pct_black                  1       186 1130948 18078
-    ## - med_income                 1       396 1131157 18079
-    ## - pct_public_coverage_alone  1       401 1131163 18079
-    ## <none>                                   1130761 18080
-    ## - pct_white                  1      1155 1131916 18081
-    ## + median_age_female          1         2 1130759 18082
-    ## + pct_public_coverage        1         0 1130761 18082
-    ## - pct_unemployed16_over      1      2304 1133065 18084
-    ## - pop_est2015                1      3262 1134023 18086
-    ## - pct_emp_priv_coverage      1      4300 1135061 18089
-    ## - pct_private_coverage       1      4985 1135746 18091
-    ## - pct_hs25_over              1      5443 1136205 18092
-    ## - poverty_percent            1      6182 1136943 18094
-    ## - median_age_male            1      8257 1139018 18100
-    ## - avg_ann_count              1      8352 1139113 18100
-    ## - birth_rate                 1      9000 1139761 18102
-    ## - avg_deaths_per_year        1      9183 1139944 18102
-    ## - pct_hs18_24                1     11882 1142643 18109
-    ## - percent_married            1     13853 1144614 18115
-    ## - pct_married_households     1     16217 1146979 18121
-    ## - pct_other_race             1     20100 1150861 18131
-    ## - pct_bach_deg25_over        1     24641 1155402 18143
-    ## - incidence_rate             1    268888 1399649 18728
-    ## 
-    ## Step:  AIC=18077.56
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + median_age + 
-    ##     median_age_male + avg_household_size + percent_married + 
-    ##     pct_hs18_24 + pct_bach_deg18_24 + pct_hs25_over + pct_bach_deg25_over + 
-    ##     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-    ##     pct_public_coverage_alone + pct_white + pct_black + pct_asian + 
-    ##     pct_other_race + pct_married_households + birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - pct_asian                  1        39 1130806 18076
-    ## - median_age                 1        44 1130811 18076
-    ## - avg_household_size         1        99 1130866 18076
-    ## - pct_bach_deg18_24          1       121 1130889 18076
-    ## - pct_black                  1       186 1130954 18076
-    ## - pct_public_coverage_alone  1       398 1131166 18077
-    ## - med_income                 1       406 1131173 18077
-    ## <none>                                   1130767 18078
-    ## - pct_white                  1      1160 1131927 18079
-    ## + study_per_cap              1         6 1130761 18080
-    ## + median_age_female          1         2 1130765 18080
-    ## + pct_public_coverage        1         0 1130767 18080
-    ## - pct_unemployed16_over      1      2303 1133070 18082
-    ## - pop_est2015                1      3258 1134026 18084
-    ## - pct_emp_priv_coverage      1      4295 1135062 18087
-    ## - pct_private_coverage       1      4996 1135763 18089
-    ## - pct_hs25_over              1      5468 1136235 18090
-    ## - poverty_percent            1      6211 1136979 18092
-    ## - median_age_male            1      8259 1139026 18098
-    ## - avg_ann_count              1      8393 1139160 18098
-    ## - birth_rate                 1      9036 1139803 18100
-    ## - avg_deaths_per_year        1      9188 1139955 18100
-    ## - pct_hs18_24                1     11876 1142643 18107
-    ## - percent_married            1     13872 1144640 18113
-    ## - pct_married_households     1     16211 1146979 18119
-    ## - pct_other_race             1     20099 1150866 18129
-    ## - pct_bach_deg25_over        1     24714 1155481 18141
-    ## - incidence_rate             1    269366 1400133 18727
-    ## 
-    ## Step:  AIC=18075.66
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + median_age + 
-    ##     median_age_male + avg_household_size + percent_married + 
-    ##     pct_hs18_24 + pct_bach_deg18_24 + pct_hs25_over + pct_bach_deg25_over + 
-    ##     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-    ##     pct_public_coverage_alone + pct_white + pct_black + pct_other_race + 
-    ##     pct_married_households + birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - median_age                 1        45 1130851 18074
-    ## - avg_household_size         1        96 1130902 18074
-    ## - pct_bach_deg18_24          1       110 1130917 18074
-    ## - pct_black                  1       279 1131085 18074
-    ## - pct_public_coverage_alone  1       413 1131220 18075
-    ## - med_income                 1       458 1131264 18075
-    ## <none>                                   1130806 18076
-    ## + pct_asian                  1        39 1130767 18078
-    ## + study_per_cap              1         5 1130801 18078
-    ## + median_age_female          1         2 1130804 18078
-    ## + pct_public_coverage        1         1 1130806 18078
-    ## - pct_white                  1      1497 1132304 18078
-    ## - pct_unemployed16_over      1      2302 1133109 18080
-    ## - pop_est2015                1      3221 1134027 18082
-    ## - pct_emp_priv_coverage      1      4338 1135144 18085
-    ## - pct_private_coverage       1      4957 1135763 18087
-    ## - pct_hs25_over              1      5429 1136235 18088
-    ## - poverty_percent            1      6348 1137154 18091
-    ## - median_age_male            1      8227 1139033 18096
-    ## - avg_ann_count              1      8409 1139216 18096
-    ## - birth_rate                 1      9135 1139942 18098
-    ## - avg_deaths_per_year        1      9151 1139958 18098
-    ## - pct_hs18_24                1     11900 1142707 18106
-    ## - percent_married            1     13848 1144655 18111
-    ## - pct_married_households     1     16231 1147038 18117
-    ## - pct_other_race             1     20310 1151117 18128
-    ## - pct_bach_deg25_over        1     24750 1155556 18140
-    ## - incidence_rate             1    269327 1400133 18725
-    ## 
-    ## Step:  AIC=18073.78
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + median_age_male + 
-    ##     avg_household_size + percent_married + pct_hs18_24 + pct_bach_deg18_24 + 
-    ##     pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + 
-    ##     pct_private_coverage + pct_emp_priv_coverage + pct_public_coverage_alone + 
-    ##     pct_white + pct_black + pct_other_race + pct_married_households + 
-    ##     birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - avg_household_size         1        94 1130945 18072
-    ## - pct_bach_deg18_24          1       110 1130961 18072
-    ## - pct_black                  1       279 1131130 18073
-    ## - pct_public_coverage_alone  1       421 1131272 18073
-    ## - med_income                 1       460 1131312 18073
-    ## <none>                                   1130851 18074
-    ## + median_age                 1        45 1130806 18076
-    ## + pct_asian                  1        40 1130811 18076
-    ## + study_per_cap              1         5 1130847 18076
-    ## + median_age_female          1         2 1130849 18076
-    ## + pct_public_coverage        1         1 1130851 18076
-    ## - pct_white                  1      1499 1132350 18076
-    ## - pct_unemployed16_over      1      2277 1133128 18078
-    ## - pop_est2015                1      3239 1134091 18081
-    ## - pct_emp_priv_coverage      1      4346 1135197 18084
-    ## - pct_private_coverage       1      4952 1135803 18085
-    ## - pct_hs25_over              1      5434 1136285 18086
-    ## - poverty_percent            1      6378 1137229 18089
-    ## - median_age_male            1      8391 1139242 18094
-    ## - avg_ann_count              1      8401 1139252 18094
-    ## - birth_rate                 1      9145 1139996 18096
-    ## - avg_deaths_per_year        1      9178 1140030 18096
-    ## - pct_hs18_24                1     11881 1142732 18104
-    ## - percent_married            1     13843 1144695 18109
-    ## - pct_married_households     1     16208 1147059 18115
-    ## - pct_other_race             1     20328 1151179 18126
-    ## - pct_bach_deg25_over        1     24747 1155598 18138
-    ## - incidence_rate             1    269313 1400164 18723
-    ## 
-    ## Step:  AIC=18072.04
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + median_age_male + 
-    ##     percent_married + pct_hs18_24 + pct_bach_deg18_24 + pct_hs25_over + 
-    ##     pct_bach_deg25_over + pct_unemployed16_over + pct_private_coverage + 
-    ##     pct_emp_priv_coverage + pct_public_coverage_alone + pct_white + 
-    ##     pct_black + pct_other_race + pct_married_households + birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - pct_bach_deg18_24          1       108 1131053 18070
-    ## - pct_black                  1       312 1131258 18071
-    ## - pct_public_coverage_alone  1       418 1131363 18071
-    ## - med_income                 1       488 1131434 18071
-    ## <none>                                   1130945 18072
-    ## + avg_household_size         1        94 1130851 18074
-    ## + median_age                 1        43 1130902 18074
-    ## + pct_asian                  1        37 1130908 18074
-    ## + median_age_female          1         6 1130939 18074
-    ## + study_per_cap              1         4 1130942 18074
-    ## + pct_public_coverage        1         0 1130945 18074
-    ## - pct_white                  1      1587 1132532 18074
-    ## - pct_unemployed16_over      1      2321 1133267 18076
-    ## - pop_est2015                1      3228 1134173 18079
-    ## - pct_emp_priv_coverage      1      4373 1135318 18082
-    ## - pct_private_coverage       1      5130 1136075 18084
-    ## - pct_hs25_over              1      5425 1136371 18085
-    ## - poverty_percent            1      6378 1137323 18087
-    ## - avg_ann_count              1      8402 1139347 18093
-    ## - median_age_male            1      8853 1139798 18094
-    ## - birth_rate                 1      9094 1140040 18094
-    ## - avg_deaths_per_year        1      9169 1140115 18095
-    ## - pct_hs18_24                1     11998 1142943 18102
-    ## - percent_married            1     13792 1144737 18107
-    ## - pct_married_households     1     16496 1147442 18114
-    ## - pct_other_race             1     20271 1151216 18124
-    ## - pct_bach_deg25_over        1     24734 1155680 18136
-    ## - incidence_rate             1    269380 1400325 18721
-    ## 
-    ## Step:  AIC=18070.33
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + median_age_male + 
-    ##     percent_married + pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + 
-    ##     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-    ##     pct_public_coverage_alone + pct_white + pct_black + pct_other_race + 
-    ##     pct_married_households + birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - pct_black                  1       316 1131369 18069
-    ## - pct_public_coverage_alone  1       395 1131448 18069
-    ## - med_income                 1       428 1131481 18070
-    ## <none>                                   1131053 18070
-    ## + pct_bach_deg18_24          1       108 1130945 18072
-    ## + avg_household_size         1        92 1130961 18072
-    ## + median_age                 1        43 1131010 18072
-    ## + pct_asian                  1        26 1131027 18072
-    ## + median_age_female          1         5 1131048 18072
-    ## + study_per_cap              1         3 1131050 18072
-    ## + pct_public_coverage        1         1 1131052 18072
-    ## - pct_white                  1      1611 1132664 18073
-    ## - pct_unemployed16_over      1      2407 1133460 18075
-    ## - pop_est2015                1      3195 1134248 18077
-    ## - pct_emp_priv_coverage      1      4369 1135422 18080
-    ## - pct_private_coverage       1      5322 1136375 18083
-    ## - pct_hs25_over              1      5334 1136387 18083
-    ## - poverty_percent            1      6287 1137340 18085
-    ## - avg_ann_count              1      8398 1139450 18091
-    ## - median_age_male            1      8925 1139978 18092
-    ## - birth_rate                 1      8998 1140051 18093
-    ## - avg_deaths_per_year        1      9095 1140148 18093
-    ## - pct_hs18_24                1     13043 1144096 18103
-    ## - percent_married            1     13684 1144737 18105
-    ## - pct_married_households     1     16541 1147594 18113
-    ## - pct_other_race             1     20425 1151478 18123
-    ## - pct_bach_deg25_over        1     26593 1157646 18139
-    ## - incidence_rate             1    269512 1400565 18720
-    ## 
-    ## Step:  AIC=18069.18
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + median_age_male + 
-    ##     percent_married + pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + 
-    ##     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-    ##     pct_public_coverage_alone + pct_white + pct_other_race + 
-    ##     pct_married_households + birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - pct_public_coverage_alone  1       427 1131796 18068
-    ## - med_income                 1       517 1131886 18069
-    ## <none>                                   1131369 18069
-    ## + pct_black                  1       316 1131053 18070
-    ## + avg_household_size         1       125 1131244 18071
-    ## + pct_asian                  1       115 1131254 18071
-    ## + pct_bach_deg18_24          1       111 1131258 18071
-    ## + median_age                 1        43 1131326 18071
-    ## + median_age_female          1        26 1131343 18071
-    ## + pct_public_coverage        1         4 1131365 18071
-    ## + study_per_cap              1         2 1131366 18071
-    ## - pct_white                  1      1692 1133061 18072
-    ## - pct_unemployed16_over      1      2402 1133771 18074
-    ## - pop_est2015                1      3138 1134507 18076
-    ## - pct_emp_priv_coverage      1      4219 1135588 18079
-    ## - pct_hs25_over              1      5510 1136879 18082
-    ## - pct_private_coverage       1      5706 1137075 18083
-    ## - poverty_percent            1      6056 1137425 18083
-    ## - avg_ann_count              1      8244 1139612 18089
-    ## - birth_rate                 1      8800 1140169 18091
-    ## - avg_deaths_per_year        1      8941 1140310 18091
-    ## - median_age_male            1      9613 1140982 18093
-    ## - pct_hs18_24                1     13114 1144483 18102
-    ## - percent_married            1     13880 1145249 18104
-    ## - pct_married_households     1     16641 1148010 18112
-    ## - pct_other_race             1     20590 1151959 18122
-    ## - pct_bach_deg25_over        1     26286 1157655 18137
-    ## - incidence_rate             1    269350 1400719 18718
-    ## 
-    ## Step:  AIC=18068.33
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     med_income + pop_est2015 + poverty_percent + median_age_male + 
-    ##     percent_married + pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + 
-    ##     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-    ##     pct_white + pct_other_race + pct_married_households + birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## - med_income                 1       535 1132331 18068
-    ## <none>                                   1131796 18068
-    ## + pct_public_coverage_alone  1       427 1131369 18069
-    ## + pct_black                  1       348 1131448 18069
-    ## + pct_public_coverage        1       337 1131459 18069
-    ## + pct_asian                  1       147 1131649 18070
-    ## + avg_household_size         1       123 1131673 18070
-    ## + pct_bach_deg18_24          1        88 1131708 18070
-    ## + median_age                 1        51 1131745 18070
-    ## + median_age_female          1        11 1131785 18070
-    ## + study_per_cap              1         1 1131795 18070
-    ## - pct_white                  1      1501 1133297 18070
-    ## - pct_unemployed16_over      1      2899 1134696 18074
-    ## - pop_est2015                1      3311 1135107 18075
-    ## - pct_emp_priv_coverage      1      4502 1136298 18078
-    ## - pct_hs25_over              1      5796 1137592 18082
-    ## - poverty_percent            1      6867 1138663 18085
-    ## - avg_ann_count              1      8063 1139859 18088
-    ## - birth_rate                 1      8720 1140516 18090
-    ## - avg_deaths_per_year        1      9152 1140948 18091
-    ## - median_age_male            1      9198 1140995 18091
-    ## - pct_private_coverage       1     11205 1143001 18096
-    ## - pct_hs18_24                1     12986 1144782 18101
-    ## - percent_married            1     13976 1145773 18104
-    ## - pct_married_households     1     17287 1149084 18113
-    ## - pct_other_race             1     20366 1152162 18121
-    ## - pct_bach_deg25_over        1     26532 1158328 18137
-    ## - incidence_rate             1    280557 1412353 18741
-    ## 
-    ## Step:  AIC=18067.77
-    ## target_death_rate ~ avg_ann_count + avg_deaths_per_year + incidence_rate + 
-    ##     pop_est2015 + poverty_percent + median_age_male + percent_married + 
-    ##     pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + 
-    ##     pct_private_coverage + pct_emp_priv_coverage + pct_white + 
-    ##     pct_other_race + pct_married_households + birth_rate
-    ## 
-    ##                             Df Sum of Sq     RSS   AIC
-    ## <none>                                   1132331 18068
-    ## + med_income                 1       535 1131796 18068
-    ## + pct_public_coverage_alone  1       444 1131886 18069
-    ## + pct_black                  1       443 1131887 18069
-    ## + pct_public_coverage        1       281 1132050 18069
-    ## + pct_asian                  1       271 1132059 18069
-    ## + avg_household_size         1       164 1132167 18069
-    ## + median_age                 1        54 1132277 18070
-    ## + pct_bach_deg18_24          1        30 1132301 18070
-    ## + median_age_female          1        15 1132316 18070
-    ## + study_per_cap              1         7 1132324 18070
-    ## - pct_white                  1      2398 1134728 18072
-    ## - pct_unemployed16_over      1      3116 1135447 18074
-    ## - pop_est2015                1      3170 1135500 18074
-    ## - pct_hs25_over              1      5349 1137680 18080
-    ## - pct_emp_priv_coverage      1      6750 1139081 18084
-    ## - poverty_percent            1      6855 1139185 18084
-    ## - avg_ann_count              1      7961 1140292 18087
-    ## - birth_rate                 1      8457 1140787 18088
-    ## - median_age_male            1      8911 1141241 18090
-    ## - avg_deaths_per_year        1      8935 1141266 18090
-    ## - pct_private_coverage       1     11953 1144284 18098
-    ## - percent_married            1     13458 1145789 18102
-    ## - pct_hs18_24                1     13752 1146083 18103
-    ## - pct_married_households     1     17238 1149569 18112
-    ## - pct_other_race             1     20179 1152509 18120
-    ## - pct_bach_deg25_over        1     26506 1158837 18136
-    ## - incidence_rate             1    282026 1414357 18743
-
-    ## 
-    ## Call:
-    ## lm(formula = target_death_rate ~ avg_ann_count + avg_deaths_per_year + 
-    ##     incidence_rate + pop_est2015 + poverty_percent + median_age_male + 
-    ##     percent_married + pct_hs18_24 + pct_hs25_over + pct_bach_deg25_over + 
-    ##     pct_unemployed16_over + pct_private_coverage + pct_emp_priv_coverage + 
-    ##     pct_white + pct_other_race + pct_married_households + birth_rate, 
-    ##     data = cancer_df)
-    ## 
-    ## Coefficients:
-    ##            (Intercept)           avg_ann_count     avg_deaths_per_year  
-    ##              1.233e+02              -3.536e-03               1.883e-02  
-    ##         incidence_rate             pop_est2015         poverty_percent  
-    ##              1.943e-01              -1.564e-05               5.455e-01  
-    ##        median_age_male         percent_married             pct_hs18_24  
-    ##             -4.968e-01               8.526e-01               2.793e-01  
-    ##          pct_hs25_over     pct_bach_deg25_over   pct_unemployed16_over  
-    ##              3.524e-01              -1.180e+00               4.432e-01  
-    ##   pct_private_coverage   pct_emp_priv_coverage               pct_white  
-    ##             -5.016e-01               3.520e-01              -8.097e-02  
-    ##         pct_other_race  pct_married_households              birth_rate  
-    ##             -8.719e-01              -8.514e-01              -9.063e-01
-
-``` r
-seventeen_variable = cancer_df %>%
-  select(target_death_rate, avg_ann_count , avg_deaths_per_year , 
-     incidence_rate , pop_est2015 , poverty_percent ,median_age_male , 
-     percent_married , pct_hs18_24 , pct_hs25_over , pct_bach_deg25_over , 
-     pct_unemployed16_over , pct_private_coverage , pct_emp_priv_coverage , 
-    pct_white , pct_other_race , pct_married_households , birth_rate)
-round(cor(seventeen_variable),3)                    # correlation matrix #
-```
-
-    ##                        target_death_rate avg_ann_count avg_deaths_per_year
-    ## target_death_rate                  1.000        -0.144              -0.091
-    ## avg_ann_count                     -0.144         1.000               0.939
-    ## avg_deaths_per_year               -0.091         0.939               1.000
-    ## incidence_rate                     0.449         0.074               0.063
-    ## pop_est2015                       -0.120         0.927               0.978
-    ## poverty_percent                    0.429        -0.136              -0.067
-    ## median_age_male                   -0.022        -0.125              -0.148
-    ## percent_married                   -0.267        -0.106              -0.181
-    ## pct_hs18_24                        0.262        -0.182              -0.151
-    ## pct_hs25_over                      0.405        -0.311              -0.296
-    ## pct_bach_deg25_over               -0.485         0.321               0.293
-    ## pct_unemployed16_over              0.378        -0.009               0.070
-    ## pct_private_coverage              -0.386         0.132               0.056
-    ## pct_emp_priv_coverage             -0.267         0.202               0.160
-    ## pct_white                         -0.177        -0.137              -0.187
-    ## pct_other_race                    -0.190         0.209               0.215
-    ## pct_married_households            -0.293        -0.106              -0.160
-    ## birth_rate                        -0.087        -0.035              -0.074
-    ##                        incidence_rate pop_est2015 poverty_percent
-    ## target_death_rate               0.449      -0.120           0.429
-    ## avg_ann_count                   0.074       0.927          -0.136
-    ## avg_deaths_per_year             0.063       0.978          -0.067
-    ## incidence_rate                  1.000       0.027           0.009
-    ## pop_est2015                     0.027       1.000          -0.065
-    ## poverty_percent                 0.009      -0.065           1.000
-    ## median_age_male                -0.015      -0.177          -0.214
-    ## percent_married                -0.120      -0.160          -0.643
-    ## pct_hs18_24                     0.023      -0.152           0.094
-    ## pct_hs25_over                   0.122      -0.312           0.194
-    ## pct_bach_deg25_over            -0.038       0.297          -0.532
-    ## pct_unemployed16_over           0.100       0.051           0.655
-    ## pct_private_coverage            0.105       0.053          -0.823
-    ## pct_emp_priv_coverage           0.150       0.159          -0.683
-    ## pct_white                      -0.015      -0.190          -0.509
-    ## pct_other_race                 -0.209       0.241           0.047
-    ## pct_married_households         -0.152      -0.128          -0.605
-    ## birth_rate                     -0.118      -0.058          -0.012
-    ##                        median_age_male percent_married pct_hs18_24
-    ## target_death_rate               -0.022          -0.267       0.262
-    ## avg_ann_count                   -0.125          -0.106      -0.182
-    ## avg_deaths_per_year             -0.148          -0.181      -0.151
-    ## incidence_rate                  -0.015          -0.120       0.023
-    ## pop_est2015                     -0.177          -0.160      -0.152
-    ## poverty_percent                 -0.214          -0.643       0.094
-    ## median_age_male                  1.000           0.450       0.241
-    ## percent_married                  0.450           1.000       0.133
-    ## pct_hs18_24                      0.241           0.133       1.000
-    ## pct_hs25_over                    0.318           0.102       0.439
-    ## pct_bach_deg25_over             -0.132           0.104      -0.405
-    ## pct_unemployed16_over           -0.143          -0.551       0.131
-    ## pct_private_coverage             0.082           0.449      -0.254
-    ## pct_emp_priv_coverage           -0.209           0.233      -0.244
-    ## pct_white                        0.398           0.677       0.045
-    ## pct_other_race                  -0.267          -0.105      -0.060
-    ## pct_married_households           0.222           0.870       0.120
-    ## birth_rate                      -0.104           0.141       0.058
-    ##                        pct_hs25_over pct_bach_deg25_over
-    ## target_death_rate              0.405              -0.485
-    ## avg_ann_count                 -0.311               0.321
-    ## avg_deaths_per_year           -0.296               0.293
-    ## incidence_rate                 0.122              -0.038
-    ## pop_est2015                   -0.312               0.297
-    ## poverty_percent                0.194              -0.532
-    ## median_age_male                0.318              -0.132
-    ## percent_married                0.102               0.104
-    ## pct_hs18_24                    0.439              -0.405
-    ## pct_hs25_over                  1.000              -0.741
-    ## pct_bach_deg25_over           -0.741               1.000
-    ## pct_unemployed16_over          0.082              -0.373
-    ## pct_private_coverage          -0.222               0.603
-    ## pct_emp_priv_coverage         -0.223               0.539
-    ## pct_white                      0.188               0.049
-    ## pct_other_race                -0.286               0.039
-    ## pct_married_households         0.062               0.098
-    ## birth_rate                     0.017              -0.088
-    ##                        pct_unemployed16_over pct_private_coverage
-    ## target_death_rate                      0.378               -0.386
-    ## avg_ann_count                         -0.009                0.132
-    ## avg_deaths_per_year                    0.070                0.056
-    ## incidence_rate                         0.100                0.105
-    ## pop_est2015                            0.051                0.053
-    ## poverty_percent                        0.655               -0.823
-    ## median_age_male                       -0.143                0.082
-    ## percent_married                       -0.551                0.449
-    ## pct_hs18_24                            0.131               -0.254
-    ## pct_hs25_over                          0.082               -0.222
-    ## pct_bach_deg25_over                   -0.373                0.603
-    ## pct_unemployed16_over                  1.000               -0.634
-    ## pct_private_coverage                  -0.634                1.000
-    ## pct_emp_priv_coverage                 -0.475                0.827
-    ## pct_white                             -0.502                0.429
-    ## pct_other_race                         0.028               -0.176
-    ## pct_married_households                -0.470                0.435
-    ## birth_rate                            -0.068               -0.040
-    ##                        pct_emp_priv_coverage pct_white pct_other_race
-    ## target_death_rate                     -0.267    -0.177         -0.190
-    ## avg_ann_count                          0.202    -0.137          0.209
-    ## avg_deaths_per_year                    0.160    -0.187          0.215
-    ## incidence_rate                         0.150    -0.015         -0.209
-    ## pop_est2015                            0.159    -0.190          0.241
-    ## poverty_percent                       -0.683    -0.509          0.047
-    ## median_age_male                       -0.209     0.398         -0.267
-    ## percent_married                        0.233     0.677         -0.105
-    ## pct_hs18_24                           -0.244     0.045         -0.060
-    ## pct_hs25_over                         -0.223     0.188         -0.286
-    ## pct_bach_deg25_over                    0.539     0.049          0.039
-    ## pct_unemployed16_over                 -0.475    -0.502          0.028
-    ## pct_private_coverage                   0.827     0.429         -0.176
-    ## pct_emp_priv_coverage                  1.000     0.270         -0.064
-    ## pct_white                              0.270     1.000         -0.234
-    ## pct_other_race                        -0.064    -0.234          1.000
-    ## pct_married_households                 0.323     0.597         -0.027
-    ## birth_rate                            -0.094    -0.009          0.060
-    ##                        pct_married_households birth_rate
-    ## target_death_rate                      -0.293     -0.087
-    ## avg_ann_count                          -0.106     -0.035
-    ## avg_deaths_per_year                    -0.160     -0.074
-    ## incidence_rate                         -0.152     -0.118
-    ## pop_est2015                            -0.128     -0.058
-    ## poverty_percent                        -0.605     -0.012
-    ## median_age_male                         0.222     -0.104
-    ## percent_married                         0.870      0.141
-    ## pct_hs18_24                             0.120      0.058
-    ## pct_hs25_over                           0.062      0.017
-    ## pct_bach_deg25_over                     0.098     -0.088
-    ## pct_unemployed16_over                  -0.470     -0.068
-    ## pct_private_coverage                    0.435     -0.040
-    ## pct_emp_priv_coverage                   0.323     -0.094
-    ## pct_white                               0.597     -0.009
-    ## pct_other_race                         -0.027      0.060
-    ## pct_married_households                  1.000      0.102
-    ## birth_rate                              0.102      1.000
-
-``` r
-step1=lm(target_death_rate ~ . - avg_ann_count - avg_deaths_per_year, data = seventeen_variable)
-summary(step1)
+b=cancer_df %>%
+  select(target_death_rate, pct_private_coverage,pct_emp_priv_coverage,pct_public_coverage,pct_public_coverage_alone)
+lm(target_death_rate ~pct_private_coverage+pct_emp_priv_coverage+pct_public_coverage+pct_public_coverage_alone, data=b)  %>%
+  summary()
 ```
 
     ## 
     ## Call:
-    ## lm(formula = target_death_rate ~ . - avg_ann_count - avg_deaths_per_year, 
-    ##     data = seventeen_variable)
+    ## lm(formula = target_death_rate ~ pct_private_coverage + pct_emp_priv_coverage + 
+    ##     pct_public_coverage + pct_public_coverage_alone, data = b)
     ## 
     ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -96.529 -10.783  -0.218  10.644 137.780 
+    ##      Min       1Q   Median       3Q      Max 
+    ## -121.762  -13.692    0.574   14.226  178.854 
     ## 
     ## Coefficients:
-    ##                          Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)             1.258e+02  1.069e+01  11.768  < 2e-16 ***
-    ## incidence_rate          1.941e-01  7.046e-03  27.550  < 2e-16 ***
-    ## pop_est2015            -1.624e-06  1.197e-06  -1.357 0.174994    
-    ## poverty_percent         5.032e-01  1.272e-01   3.955 7.83e-05 ***
-    ## median_age_male        -4.676e-01  1.016e-01  -4.603 4.34e-06 ***
-    ## percent_married         7.758e-01  1.421e-01   5.459 5.18e-08 ***
-    ## pct_hs18_24             2.904e-01  4.615e-02   6.292 3.57e-10 ***
-    ## pct_hs25_over           3.851e-01  9.342e-02   4.122 3.86e-05 ***
-    ## pct_bach_deg25_over    -1.136e+00  1.406e-01  -8.077 9.48e-16 ***
-    ## pct_unemployed16_over   5.264e-01  1.533e-01   3.433 0.000604 ***
-    ## pct_private_coverage   -5.483e-01  8.872e-02  -6.180 7.29e-10 ***
-    ## pct_emp_priv_coverage   3.697e-01  8.316e-02   4.446 9.07e-06 ***
-    ## pct_white              -7.160e-02  3.207e-02  -2.233 0.025645 *  
-    ## pct_other_race         -9.004e-01  1.192e-01  -7.557 5.44e-14 ***
-    ## pct_married_households -8.468e-01  1.251e-01  -6.770 1.55e-11 ***
-    ## birth_rate             -9.819e-01  1.908e-01  -5.145 2.84e-07 ***
+    ##                           Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)               134.0180     8.6254  15.538  < 2e-16 ***
+    ## pct_private_coverage       -0.8224     0.1380  -5.958 2.84e-09 ***
+    ## pct_emp_priv_coverage       1.0398     0.1141   9.114  < 2e-16 ***
+    ## pct_public_coverage         1.1673     0.1576   7.408 1.65e-13 ***
+    ## pct_public_coverage_alone   0.6454     0.2676   2.412   0.0159 *  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 19.43 on 3031 degrees of freedom
-    ## Multiple R-squared:  0.5122, Adjusted R-squared:  0.5098 
-    ## F-statistic: 212.2 on 15 and 3031 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 24.46 on 3042 degrees of freedom
+    ## Multiple R-squared:  0.2245, Adjusted R-squared:  0.2235 
+    ## F-statistic: 220.1 on 4 and 3042 DF,  p-value: < 2.2e-16
 
 ``` r
-step2= lm(target_death_rate ~ . - avg_ann_count - pop_est2015, data = seventeen_variable)
-summary(step2)
+c=cancer_df %>%
+  select(target_death_rate, pct_white , pct_black, pct_asian , pct_other_race)
+lm(target_death_rate ~ pct_white + pct_black+ pct_asian + pct_other_race,data=c) %>%
+  summary()
 ```
 
     ## 
     ## Call:
-    ## lm(formula = target_death_rate ~ . - avg_ann_count - pop_est2015, 
-    ##     data = seventeen_variable)
+    ## lm(formula = target_death_rate ~ pct_white + pct_black + pct_asian + 
+    ##     pct_other_race, data = c)
     ## 
     ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -96.160 -10.779  -0.243  10.680 138.094 
+    ##      Min       1Q   Median       3Q      Max 
+    ## -114.852  -15.281   -0.395   14.563  176.720 
     ## 
     ## Coefficients:
-    ##                          Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)             1.256e+02  1.069e+01  11.742  < 2e-16 ***
-    ## avg_deaths_per_year    -4.708e-04  7.845e-04  -0.600 0.548466    
-    ## incidence_rate          1.939e-01  7.058e-03  27.478  < 2e-16 ***
-    ## poverty_percent         5.077e-01  1.275e-01   3.982 7.00e-05 ***
-    ## median_age_male        -4.685e-01  1.017e-01  -4.605 4.29e-06 ***
-    ## percent_married         7.763e-01  1.422e-01   5.460 5.15e-08 ***
-    ## pct_hs18_24             2.909e-01  4.617e-02   6.302 3.37e-10 ***
-    ## pct_hs25_over           3.863e-01  9.344e-02   4.134 3.67e-05 ***
-    ## pct_bach_deg25_over    -1.152e+00  1.406e-01  -8.192 3.75e-16 ***
-    ## pct_unemployed16_over   5.199e-01  1.536e-01   3.384 0.000723 ***
-    ## pct_private_coverage   -5.406e-01  8.879e-02  -6.089 1.28e-09 ***
-    ## pct_emp_priv_coverage   3.623e-01  8.323e-02   4.353 1.39e-05 ***
-    ## pct_white              -7.004e-02  3.206e-02  -2.185 0.028987 *  
-    ## pct_other_race         -9.173e-01  1.190e-01  -7.708 1.72e-14 ***
-    ## pct_married_households -8.451e-01  1.252e-01  -6.748 1.79e-11 ***
-    ## birth_rate             -9.813e-01  1.909e-01  -5.141 2.91e-07 ***
+    ##                 Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)    212.46569    6.04343  35.156  < 2e-16 ***
+    ## pct_white       -0.35241    0.06276  -5.615 2.14e-08 ***
+    ## pct_black        0.15958    0.06696   2.383   0.0172 *  
+    ## pct_asian       -2.16556    0.20095 -10.777  < 2e-16 ***
+    ## pct_other_race  -1.54376    0.14926 -10.343  < 2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 19.43 on 3031 degrees of freedom
-    ## Multiple R-squared:  0.512,  Adjusted R-squared:  0.5096 
-    ## F-statistic:   212 on 15 and 3031 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 25.85 on 3042 degrees of freedom
+    ## Multiple R-squared:  0.1335, Adjusted R-squared:  0.1324 
+    ## F-statistic: 117.2 on 4 and 3042 DF,  p-value: < 2.2e-16
 
 ``` r
-step3=lm(target_death_rate ~ . - pop_est2015 - avg_deaths_per_year , data=seventeen_variable)
-summary(step3)
+lm(target_death_rate ~ percent_married, data = cancer_df) %>% summary()
 ```
 
     ## 
     ## Call:
-    ## lm(formula = target_death_rate ~ . - pop_est2015 - avg_deaths_per_year, 
-    ##     data = seventeen_variable)
+    ## lm(formula = target_death_rate ~ percent_married, data = cancer_df)
     ## 
     ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -97.532 -10.791  -0.197  10.576 137.294 
+    ##      Min       1Q   Median       3Q      Max 
+    ## -133.752  -16.671   -0.593   15.726  167.630 
     ## 
     ## Coefficients:
-    ##                          Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)             1.259e+02  1.068e+01  11.784  < 2e-16 ***
-    ## avg_ann_count          -6.545e-04  2.772e-04  -2.361 0.018295 *  
-    ## incidence_rate          1.952e-01  7.064e-03  27.633  < 2e-16 ***
-    ## poverty_percent         4.906e-01  1.273e-01   3.853 0.000119 ***
-    ## median_age_male        -4.592e-01  1.016e-01  -4.518 6.47e-06 ***
-    ## percent_married         7.827e-01  1.420e-01   5.511 3.88e-08 ***
-    ## pct_hs18_24             2.864e-01  4.617e-02   6.204 6.23e-10 ***
-    ## pct_hs25_over           3.799e-01  9.340e-02   4.068 4.87e-05 ***
-    ## pct_bach_deg25_over    -1.125e+00  1.399e-01  -8.045 1.23e-15 ***
-    ## pct_unemployed16_over   5.348e-01  1.532e-01   3.492 0.000486 ***
-    ## pct_private_coverage   -5.508e-01  8.834e-02  -6.235 5.15e-10 ***
-    ## pct_emp_priv_coverage   3.774e-01  8.299e-02   4.547 5.64e-06 ***
-    ## pct_white              -7.302e-02  3.204e-02  -2.279 0.022748 *  
-    ## pct_other_race         -8.798e-01  1.190e-01  -7.393 1.84e-13 ***
-    ## pct_married_households -8.628e-01  1.253e-01  -6.887 6.90e-12 ***
-    ## birth_rate             -9.697e-01  1.908e-01  -5.083 3.94e-07 ***
+    ##                  Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)     234.24926    3.67052   63.82   <2e-16 ***
+    ## percent_married  -1.07362    0.07027  -15.28   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 19.42 on 3031 degrees of freedom
-    ## Multiple R-squared:  0.5128, Adjusted R-squared:  0.5104 
-    ## F-statistic: 212.7 on 15 and 3031 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 26.75 on 3045 degrees of freedom
+    ## Multiple R-squared:  0.07119,    Adjusted R-squared:  0.07089 
+    ## F-statistic: 233.4 on 1 and 3045 DF,  p-value: < 2.2e-16
 
 ``` r
-fifteen_variable = seventeen_variable %>%
-  select(-avg_deaths_per_year, - pop_est2015)
+lm(target_death_rate ~ pct_married_households, data = cancer_df) %>% summary()
 ```
 
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ pct_married_households, data = cancer_df)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -138.206  -16.530   -0.909   15.680  182.611 
+    ## 
+    ## Coefficients:
+    ##                         Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)            242.12797    3.77911   64.07   <2e-16 ***
+    ## pct_married_households  -1.23847    0.07315  -16.93   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 26.54 on 3045 degrees of freedom
+    ## Multiple R-squared:  0.08604,    Adjusted R-squared:  0.08574 
+    ## F-statistic: 286.7 on 1 and 3045 DF,  p-value: < 2.2e-16
+
+``` r
+raw_data=cancer_df %>%
+  select(-avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , - pct_hs18_24 , - pct_bach_deg18_24 , - pct_some_col18_24 , - median_age, - pct_private_coverage, - pct_public_coverage, -pct_public_coverage_alone, -percent_married , - birth_rate)
+```
+
+-   First we remove two variables with lots of missing values "pct\_employed16\_over" and "pct\_private\_coverage\_alone".
+-   Then we remove "binned\_inc" and "birth\_rate" because ?????
 -   "avg\_deaths\_per\_year", "avg\_ann\_count" and "pop\_est2015" are highly correlated. The last three steps show that we should choose avg\_ann\_count, because the p-value is the smallest, showing significant relation between target\_death\_rate and avg\_ann\_count.
+-   Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw\_data.

@@ -7,53 +7,79 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library("leaps")
 ```
 
 ## Data manipulation
 
 
+
 ```{r, message = FALSE}
-cancer_df <-
-  read_csv("Cancer_Registry.csv") %>% 
+cancer_df = read_csv("Cancer_Registry.csv") %>% 
   janitor::clean_names() %>%
-  separate(geography, into = c("county", "state"), sep = ",") %>%
-  select(-pct_no_hs18_24, -pct_some_col18_24, -binned_inc) %>%     # lots of same county names, so I did not remove state column #
-  arrange(county)
+  select(-geography)
+colSums(is.na(cancer_df))                # check number of missing values #
+cancer_df = cancer_df %>%
+  select(-pct_employed16_over, - pct_private_coverage_alone, - binned_inc)
+
   
-colSums(is.na(cancer_df))                             # check number of missing values #
-cancer_df = 
-  cancer_df %>%
-  select(-pct_employed16_over, -pct_private_coverage_alone) %>%
-  
-  select(target_death_rate, everything()) %>% 
-  mutate(state = fct_reorder(state, target_death_rate))
-str(cancer_df)
-cancer_df %>% 
-  lm(target_death_rate ~ state, data = .) %>% summary()
+                            
 
-cancer_df=
-  cancer_df %>%
-  select(-state, -county)
+cancer_df %>%
+  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 + pct_hs25_over + pct_bach_deg25_over, data=.) %>%
+  summary()
+cancer_df %>%
+  lm(target_death_rate ~ pct_no_hs18_24 + pct_hs18_24 + pct_bach_deg18_24 + pct_some_col18_24 , data=.) %>%
+  summary()
+data=cancer_df %>%
+  select(target_death_rate, pct_no_hs18_24 , pct_hs18_24 , pct_bach_deg18_24 , pct_some_col18_24 , pct_hs25_over , pct_bach_deg25_over)
+cor(cancer_df)
 
+a=cancer_df %>%
+  select(target_death_rate, median_age , median_age_male, median_age_female) 
+lm(target_death_rate ~ median_age + median_age_male+ median_age_female, data=a)%>%
+  summary()
 
-mult.fit = lm(target_death_rate ~ ., data=cancer_df)     # stepwise regression, and get 17 variables left#
-step(mult.fit, direction='both')
+b=cancer_df %>%
+  select(target_death_rate, pct_private_coverage,pct_emp_priv_coverage,pct_public_coverage,pct_public_coverage_alone)
+lm(target_death_rate ~pct_private_coverage+pct_emp_priv_coverage+pct_public_coverage+pct_public_coverage_alone, data=b)  %>%
+  summary()
 
-seventeen_variable = cancer_df %>%
-  select(target_death_rate, avg_ann_count , avg_deaths_per_year , 
-     incidence_rate , pop_est2015 , poverty_percent ,median_age_male , 
-     percent_married , pct_hs18_24 , pct_hs25_over , pct_bach_deg25_over , 
-     pct_unemployed16_over , pct_private_coverage , pct_emp_priv_coverage , 
-    pct_white , pct_other_race , pct_married_households , birth_rate)
-round(cor(seventeen_variable),3)                    # correlation matrix #
-step1=lm(target_death_rate ~ . - avg_ann_count - avg_deaths_per_year, data = seventeen_variable)
-summary(step1)
-step2= lm(target_death_rate ~ . - avg_ann_count - pop_est2015, data = seventeen_variable)
-summary(step2)
-step3=lm(target_death_rate ~ . - pop_est2015 - avg_deaths_per_year , data=seventeen_variable)
-summary(step3)
+c=cancer_df %>%
+  select(target_death_rate, pct_white , pct_black, pct_asian , pct_other_race)
+lm(target_death_rate ~ pct_white + pct_black+ pct_asian + pct_other_race,data=c) %>%
+  summary()
 
-fifteen_variable = seventeen_variable %>%
-  select(-avg_deaths_per_year, - pop_est2015)
+lm(target_death_rate ~ percent_married, data = cancer_df) %>% summary()
+lm(target_death_rate ~ pct_married_households, data = cancer_df) %>% summary()
+raw_data=cancer_df %>%
+  select(-avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , - pct_hs18_24 , - pct_bach_deg18_24 , - pct_some_col18_24 , - median_age, - pct_private_coverage, - pct_public_coverage, -pct_public_coverage_alone, -percent_married , - birth_rate)
 ```
-* "avg_deaths_per_year",  "avg_ann_count" and "pop_est2015" are highly correlated. The last three steps show that we should choose avg_ann_count, because the p-value is the smallest, showing significant relation between target_death_rate and avg_ann_count. 
+
+* First we remove two variables with lots of missing values "pct_employed16_over" and "pct_private_coverage_alone".
+* Then we remove "binned_inc" and "birth_rate" because ?????
+* "avg_deaths_per_year",  "avg_ann_count" and "pop_est2015" are highly correlated. The last three steps show that we should choose avg_ann_count, because the p-value is the smallest, showing significant relation between target_death_rate and avg_ann_count.
+* Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw_data.
+
+###stepwise
+```{r}
+model1 <- lm(target_death_rate ~ ., data=raw_data)
+step(model1, direction='backward')%>%
+summary()
+```
+
+###cp and adjusted R
+```{r}
+b<-regsubsets(target_death_rate ~ ., data=raw_data, nvmax = 30)
+   (rs<-summary(b))
+
+par(mar=c(4,4,1,1))
+par(mfrow=c(1,2))
+
+plot(2:10, rs$cp, xlab="No of parameters", ylab="Cp Statistic")
+abline(0,1)
+
+plot(2:10, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
+
+```
+From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from  plot of R square, subsets with number of 4 to 10 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence_rate, poverty_percent, avg_ann_count, and pct_hs25_over. 
