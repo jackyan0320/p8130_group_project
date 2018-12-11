@@ -12,9 +12,11 @@ cancer_df =
 
 raw_data =
   cancer_df %>%
-  dplyr::select(-pct_employed16_over, - pct_private_coverage_alone, - binned_inc, -geography) %>% 
-  dplyr::select(-avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , - pct_hs18_24 , - pct_bach_deg18_24 , - pct_some_col18_24 , - median_age, - pct_private_coverage, - pct_public_coverage, -pct_public_coverage_alone, -percent_married , - birth_rate) %>% 
-  dplyr::select(target_death_rate, everything())
+
+
+  dplyr::select(-pct_employed16_over, - pct_private_coverage_alone, -binned_inc) %>% 
+  dplyr::select(-geography, -avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , -pct_hs18_24 , -pct_bach_deg18_24, -pct_some_col18_24, -median_age, -pct_private_coverage, -pct_public_coverage, -pct_public_coverage_alone, -percent_married , -birth_rate) %>% 
+  dplyr::select(target_death_rate, everything()) 
 ```
 
 -   First we remove two variables with lots of missing values "pct\_employed16\_over" and "pct\_private\_coverage\_alone".
@@ -25,9 +27,9 @@ raw_data =
 ### stepwise
 
 ``` r
-model1 <- lm(target_death_rate ~ ., data=raw_data)
-step(model1, direction='backward')%>%
-summary()
+model1 <- lm(target_death_rate ~ ., data = raw_data)
+step(model1, direction = 'backward') %>%
+  summary()
 ```
 
     ## Start:  AIC=18229.32
