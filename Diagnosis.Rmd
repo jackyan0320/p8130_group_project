@@ -1,5 +1,5 @@
 ---
-title: "Diagnosis"
+title: "Diagnosis and Validation"
 author: "Xue Yang"
 date: "12/11/2018"
 output: github_document
@@ -200,7 +200,7 @@ Based on the diagnostic plots depicted above, we can see that that the assumptio
 
 ### Model 3
 
-Through Cp and adjusted R square criteria, we build model with 9 vairables:avg_ann_count, incidence_rate, med_income, poverty_percent, median_age_female, pct_hs25_over, pct_bach_deg25_over,pct_unemployed16_over, pct_other_race, pct_married_households
+Through Cp and adjusted R square criteria, we build model with 10 vairables:avg_ann_count, incidence_rate, med_income, poverty_percent, median_age_female, pct_hs25_over, pct_bach_deg25_over,pct_unemployed16_over, pct_other_race, pct_married_households
 ```{r}
 fit3 = lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
 summary(fit3)
@@ -279,3 +279,52 @@ plot(mult.fit_3)
 ```
 
 Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
+
+
+## Validation
+
+** Cross validation of model 1 **
+```{r}
+library(caret)
+data_train = trainControl(method="cv", number=5)
+model_caret1 = train(target_death_rate ~ avg_ann_count + incidence_rate + 
+    poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
+    pct_married_households, data = raw_data,
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret1
+
+
+```
+* From the 5-fold cross validation, the RMSE for the 11-variable model is about 19.87598.
+
+** Cross validation of model 2 **
+```{r}
+
+model_caret2 = train(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female +   pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
+                     
+
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret2
+
+```
+
+
+** Cross validation of model 3 **
+```{r}
+
+model_caret3 = train(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
+                     
+
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret3
+
+```
+
+* From the 5-fold cross validation, the RMSE for the three models are pretty similar.

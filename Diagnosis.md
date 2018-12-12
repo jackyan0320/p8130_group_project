@@ -1,4 +1,4 @@
-Diagnosis
+Diagnosis and Validation
 ================
 Xue Yang
 12/11/2018
@@ -444,7 +444,7 @@ Based on the diagnostic plots depicted above, we can see that that the assumptio
 
 ### Model 3
 
-Through Cp and adjusted R square criteria, we build model with 9 vairables:avg\_ann\_count, incidence\_rate, med\_income, poverty\_percent, median\_age\_female, pct\_hs25\_over, pct\_bach\_deg25\_over,pct\_unemployed16\_over, pct\_other\_race, pct\_married\_households
+Through Cp and adjusted R square criteria, we build model with 10 vairables:avg\_ann\_count, incidence\_rate, med\_income, poverty\_percent, median\_age\_female, pct\_hs25\_over, pct\_bach\_deg25\_over,pct\_unemployed16\_over, pct\_other\_race, pct\_married\_households
 
 ``` r
 fit3 = lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
@@ -643,3 +643,106 @@ plot(mult.fit_3)
 ![](Diagnosis_files/figure-markdown_github/unnamed-chunk-22-1.png)
 
 Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
+
+Validation
+----------
+
+\*\* Cross validation of model 1 \*\*
+
+``` r
+library(caret)
+```
+
+    ## Loading required package: lattice
+
+    ## 
+    ## Attaching package: 'caret'
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     lift
+
+``` r
+data_train = trainControl(method="cv", number=5)
+model_caret1 = train(target_death_rate ~ avg_ann_count + incidence_rate + 
+    poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
+    pct_married_households, data = raw_data,
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret1
+```
+
+    ## Linear Regression 
+    ## 
+    ## 3047 samples
+    ##   11 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (5 fold) 
+    ## Summary of sample sizes: 2437, 2437, 2439, 2438, 2437 
+    ## Resampling results:
+    ## 
+    ##   RMSE      Rsquared   MAE     
+    ##   19.84217  0.4892849  14.84669
+    ## 
+    ## Tuning parameter 'intercept' was held constant at a value of TRUE
+
+-   From the 5-fold cross validation, the RMSE for the 11-variable model is about 19.87598.
+
+\*\* Cross validation of model 2 \*\*
+
+``` r
+model_caret2 = train(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female +   pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
+                     
+
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret2
+```
+
+    ## Linear Regression 
+    ## 
+    ## 3047 samples
+    ##    9 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (5 fold) 
+    ## Summary of sample sizes: 2437, 2439, 2438, 2437, 2437 
+    ## Resampling results:
+    ## 
+    ##   RMSE      Rsquared   MAE    
+    ##   19.91965  0.4861509  14.8799
+    ## 
+    ## Tuning parameter 'intercept' was held constant at a value of TRUE
+
+\*\* Cross validation of model 3 \*\*
+
+``` r
+model_caret3 = train(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
+                     
+
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret3
+```
+
+    ## Linear Regression 
+    ## 
+    ## 3047 samples
+    ##   10 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (5 fold) 
+    ## Summary of sample sizes: 2438, 2435, 2439, 2439, 2437 
+    ## Resampling results:
+    ## 
+    ##   RMSE      Rsquared   MAE     
+    ##   19.88797  0.4867528  14.82868
+    ## 
+    ## Tuning parameter 'intercept' was held constant at a value of TRUE
+
+-   From the 5-fold cross validation, the RMSE for the three models are pretty similar.
