@@ -283,7 +283,7 @@ Based on the diagnostic plots depicted above, we can see that that the assumptio
 
 ## Validation
 
-** Cross validation of model 1 **
+**Cross validation of model 1**
 ```{r}
 library(caret)
 data_train = trainControl(method="cv", number=5)
@@ -300,7 +300,7 @@ model_caret1
 ```
 * From the 5-fold cross validation, the RMSE for the 11-variable model is about 19.87598.
 
-** Cross validation of model 2 **
+**Cross validation of model 2**
 ```{r}
 
 model_caret2 = train(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female +   pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
@@ -314,7 +314,7 @@ model_caret2
 ```
 
 
-** Cross validation of model 3 **
+**Cross validation of model 3**
 ```{r}
 
 model_caret3 = train(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,

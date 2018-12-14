@@ -647,7 +647,7 @@ Based on the diagnostic plots depicted above, we can see that that the assumptio
 Validation
 ----------
 
-\*\* Cross validation of model 1 \*\*
+**Cross validation of model 1**
 
 ``` r
 library(caret)
@@ -681,17 +681,17 @@ model_caret1
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2437, 2437, 2439, 2438, 2437 
+    ## Summary of sample sizes: 2438, 2437, 2437, 2438, 2438 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.84217  0.4892849  14.84669
+    ##   19.90979  0.4857238  14.85827
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
 -   From the 5-fold cross validation, the RMSE for the 11-variable model is about 19.87598.
 
-\*\* Cross validation of model 2 \*\*
+**Cross validation of model 2**
 
 ``` r
 model_caret2 = train(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female +   pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
@@ -710,15 +710,15 @@ model_caret2
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2437, 2439, 2438, 2437, 2437 
+    ## Summary of sample sizes: 2438, 2438, 2436, 2438, 2438 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared   MAE    
-    ##   19.91965  0.4861509  14.8799
+    ##   RMSE      Rsquared   MAE     
+    ##   19.89484  0.4858202  14.86863
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
-\*\* Cross validation of model 3 \*\*
+**Cross validation of model 3**
 
 ``` r
 model_caret3 = train(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
@@ -737,11 +737,11 @@ model_caret3
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2435, 2439, 2439, 2437 
+    ## Summary of sample sizes: 2436, 2438, 2439, 2437, 2438 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.88797  0.4867528  14.82868
+    ##   19.90792  0.4871596  14.84414
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
