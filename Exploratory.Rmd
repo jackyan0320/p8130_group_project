@@ -56,3 +56,7 @@ plot(2:18, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
 
 ```
 From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from  plot of R square, subsets with number of 9 to 17 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence_rate, poverty_percent, avg_ann_count, pct_hs25_over, pct_bach_deg25_over, pct_unemployed16_over, pct_married_households, median_age_female, and pct_white.
+```{r}
+
+```
+
