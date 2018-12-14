@@ -30,7 +30,7 @@ raw_data =
 ```
 
 * First we remove two variables with lots of missing values "pct_employed16_over" and "pct_private_coverage_alone".
-* Then we remove "binned_inc" and "birth_rate" because ?????
+* Then we remove "binned_inc" and "birth_rate" because we think they are not correlated to target death rate.
 * "avg_deaths_per_year",  "avg_ann_count" and "pop_est2015" are highly correlated. The last three steps show that we should choose avg_ann_count, because the p-value is the smallest, showing significant relation between target_death_rate and avg_ann_count.
 * Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw_data.
 
@@ -38,7 +38,10 @@ raw_data =
 ```{r}
 model1 <- lm(target_death_rate ~ ., data = raw_data)
 step(model1, direction = 'backward') %>%
-  summary()
+  summary() 
+summary(model1)
+
+  
 ```
 
 ###cp and adjusted R

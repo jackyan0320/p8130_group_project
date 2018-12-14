@@ -20,7 +20,7 @@ raw_data =
 ```
 
 -   First we remove two variables with lots of missing values "pct\_employed16\_over" and "pct\_private\_coverage\_alone".
--   Then we remove "binned\_inc" and "birth\_rate" because ?????
+-   Then we remove "binned\_inc" and "birth\_rate" because we think they are not correlated to target death rate.
 -   "avg\_deaths\_per\_year", "avg\_ann\_count" and "pop\_est2015" are highly correlated. The last three steps show that we should choose avg\_ann\_count, because the p-value is the smallest, showing significant relation between target\_death\_rate and avg\_ann\_count.
 -   Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw\_data.
 
@@ -29,7 +29,7 @@ raw_data =
 ``` r
 model1 <- lm(target_death_rate ~ ., data = raw_data)
 step(model1, direction = 'backward') %>%
-  summary()
+  summary() 
 ```
 
     ## Start:  AIC=18229.32
@@ -226,6 +226,45 @@ step(model1, direction = 'backward') %>%
     ## Residual standard error: 19.84 on 3035 degrees of freedom
     ## Multiple R-squared:  0.4906, Adjusted R-squared:  0.4887 
     ## F-statistic: 265.7 on 11 and 3035 DF,  p-value: < 2.2e-16
+
+``` r
+summary(model1)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ ., data = raw_data)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -113.129  -11.351   -0.181   11.372  140.694 
+    ## 
+    ## Coefficients:
+    ##                          Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)             1.055e+02  1.121e+01   9.409  < 2e-16 ***
+    ## avg_ann_count          -6.595e-04  2.954e-04  -2.232 0.025663 *  
+    ## incidence_rate          1.980e-01  7.201e-03  27.500  < 2e-16 ***
+    ## med_income              8.692e-05  7.796e-05   1.115 0.264958    
+    ## poverty_percent         7.085e-01  1.386e-01   5.110 3.42e-07 ***
+    ## study_per_cap          -2.831e-04  6.922e-04  -0.409 0.682648    
+    ## median_age_male        -5.544e-02  2.039e-01  -0.272 0.785778    
+    ## median_age_female      -1.587e-01  2.010e-01  -0.789 0.430101    
+    ## avg_household_size      7.089e-01  9.662e-01   0.734 0.463171    
+    ## pct_hs25_over           5.055e-01  9.492e-02   5.325 1.08e-07 ***
+    ## pct_bach_deg25_over    -1.389e+00  1.444e-01  -9.616  < 2e-16 ***
+    ## pct_unemployed16_over   6.700e-01  1.504e-01   4.455 8.68e-06 ***
+    ## pct_emp_priv_coverage  -2.226e-02  7.556e-02  -0.295 0.768276    
+    ## pct_white              -9.424e-02  5.733e-02  -1.644 0.100364    
+    ## pct_black              -7.570e-02  5.532e-02  -1.368 0.171345    
+    ## pct_asian               7.070e-02  1.879e-01   0.376 0.706780    
+    ## pct_other_race         -7.834e-01  1.255e-01  -6.243 4.90e-10 ***
+    ## pct_married_households -3.426e-01  8.865e-02  -3.865 0.000113 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 19.85 on 3029 degrees of freedom
+    ## Multiple R-squared:  0.491,  Adjusted R-squared:  0.4882 
+    ## F-statistic: 171.9 on 17 and 3029 DF,  p-value: < 2.2e-16
 
 ### cp and adjusted R
 
