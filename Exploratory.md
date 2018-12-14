@@ -368,17 +368,34 @@ fit1 = lm(target_death_rate ~ avg_ann_count + incidence_rate +
     poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
     pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
     pct_married_households, data = raw_data)
-fit2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
-fit3 = lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female +   pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
-a=AIC(fit1)
-b=AIC(fit2)
-c=AIC(fit3)
-tibble(a,b,c)
+fit2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + 
+            median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+            pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
+fit3 = lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + 
+            poverty_percent + median_age_female + pct_hs25_over + 
+            pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + 
+            pct_married_households, data = raw_data)
+aic11 = AIC(fit1)
+aic9 = AIC(fit2)
+aic10 = AIC(fit3)
+tibble(aic11,aic9,aic10)
 ```
 
     ## # A tibble: 1 x 3
-    ##        a      b      c
+    ##    aic11   aic9  aic10
     ##    <dbl>  <dbl>  <dbl>
     ## 1 26869. 26872. 26870.
 
-\`\`\`
+``` r
+bic11 = BIC(fit1)
+bic9 = BIC(fit2)
+bic10 = BIC(fit3)
+tibble(bic11,bic9,bic10)
+```
+
+    ## # A tibble: 1 x 3
+    ##    bic11   bic9  bic10
+    ##    <dbl>  <dbl>  <dbl>
+    ## 1 26947. 26938. 26942.
+
+From the AIC, we can see the three models are pretty similar.
