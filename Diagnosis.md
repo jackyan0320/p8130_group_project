@@ -644,6 +644,21 @@ plot(mult.fit_3)
 
 Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
 
+AIC
+---
+
+``` r
+a=AIC(fit1)
+b=AIC(fit2)
+c=AIC(fit3)
+tibble(a,b,c)
+```
+
+    ## # A tibble: 1 x 3
+    ##        a      b      c
+    ##    <dbl>  <dbl>  <dbl>
+    ## 1 26869. 26872. 26870.
+
 Cross Validation
 ----------------
 
@@ -688,11 +703,11 @@ model_caret1
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2437, 2438, 2437, 2438, 2438 
+    ## Summary of sample sizes: 2438, 2437, 2438, 2438, 2437 
     ## Resampling results:
     ## 
-    ##   RMSE     Rsquared   MAE     
-    ##   19.9111  0.4841756  14.85318
+    ##   RMSE      Rsquared   MAE     
+    ##   19.91451  0.4859117  14.86314
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -717,11 +732,11 @@ model_caret2
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2438, 2435, 2438, 2439 
+    ## Summary of sample sizes: 2438, 2437, 2438, 2438, 2437 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared  MAE     
-    ##   19.94205  0.483823  14.87315
+    ##   RMSE      Rsquared   MAE     
+    ##   19.93138  0.4859452  14.89743
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -744,11 +759,11 @@ model_caret3
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2437, 2437, 2438, 2438 
+    ## Summary of sample sizes: 2436, 2437, 2439, 2439, 2437 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.88688  0.4862842  14.83813
+    ##   19.89987  0.4856006  14.83529
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 

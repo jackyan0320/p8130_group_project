@@ -12,6 +12,7 @@ library("leaps")
 library(olsrr)
 library(boot)
 library(broom)
+
 ```
 
 ```{r}
@@ -124,6 +125,7 @@ Through Cp and adjusted R square criteria, we build model with 9 vairables:avg_a
 ```{r}
 fit2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
 summary(fit2)
+
 ```
 
 **outilers**
@@ -282,6 +284,15 @@ plot(mult.fit_3)
 
 Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
 
+## AIC ##
+
+```{r}
+a=AIC(fit1)
+b=AIC(fit2)
+c=AIC(fit3)
+tibble(a,b,c)
+
+```
 
 ## Cross Validation
 
