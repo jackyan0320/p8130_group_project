@@ -644,8 +644,8 @@ plot(mult.fit_3)
 
 Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
 
-Validation
-----------
+Cross Validation
+----------------
 
 **Cross validation of model 1**
 
@@ -654,6 +654,13 @@ library(caret)
 ```
 
     ## Loading required package: lattice
+
+    ## 
+    ## Attaching package: 'lattice'
+
+    ## The following object is masked from 'package:boot':
+    ## 
+    ##     melanoma
 
     ## 
     ## Attaching package: 'caret'
@@ -681,11 +688,11 @@ model_caret1
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2437, 2437, 2438, 2438 
+    ## Summary of sample sizes: 2437, 2438, 2437, 2438, 2438 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared   MAE     
-    ##   19.90979  0.4857238  14.85827
+    ##   RMSE     Rsquared   MAE     
+    ##   19.9111  0.4841756  14.85318
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -710,11 +717,11 @@ model_caret2
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2438, 2436, 2438, 2438 
+    ## Summary of sample sizes: 2438, 2438, 2435, 2438, 2439 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared   MAE     
-    ##   19.89484  0.4858202  14.86863
+    ##   RMSE      Rsquared  MAE     
+    ##   19.94205  0.483823  14.87315
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -737,12 +744,78 @@ model_caret3
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2436, 2438, 2439, 2437, 2438 
+    ## Summary of sample sizes: 2438, 2437, 2437, 2438, 2438 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.90792  0.4871596  14.84414
+    ##   19.88688  0.4862842  14.83813
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
 -   From the 5-fold cross validation, the RMSE for the three models are pretty similar.
+
+Bootstrap
+---------
+
+**Bootstrap of model 1**
+
+``` r
+boot.fn = function(data, index){
+    return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + 
+    poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
+    pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot11=boot(raw_data, boot.fn, 10000)
+boot11_tidy=tidy(boot11)
+mean(boot11_tidy$bias)
+```
+
+    ## [1] -0.004884799
+
+``` r
+mean(boot11_tidy$std.error)
+```
+
+    ## [1] 1.130276
+
+**Bootstrap of model 2**
+
+``` r
+boot.fn2 = function(data, index){
+    return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot9=boot(raw_data, boot.fn2, 10000)
+boot9_tidy=tidy(boot9)
+mean(boot9_tidy$bias)
+```
+
+    ## [1] -0.003316342
+
+``` r
+mean(boot9_tidy$std.error)
+```
+
+    ## [1] 1.200722
+
+**Bootstrap of model 3**
+
+``` r
+boot.fn3 = function(data, index){
+    return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot10=boot(raw_data, boot.fn3, 10000)
+boot10_tidy=tidy(boot10)
+mean(boot10_tidy$bias)
+```
+
+    ## [1] -0.001379811
+
+``` r
+mean(boot10_tidy$std.error)
+```
+
+    ## [1] 1.105661

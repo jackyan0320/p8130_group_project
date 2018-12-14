@@ -10,6 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library("leaps")
 library(olsrr)
+library(boot)
+library(broom)
 ```
 
 ```{r}
@@ -281,7 +283,7 @@ plot(mult.fit_3)
 Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
 
 
-## Validation
+## Cross Validation
 
 **Cross validation of model 1**
 ```{r}
@@ -328,3 +330,44 @@ model_caret3
 ```
 
 * From the 5-fold cross validation, the RMSE for the three models are pretty similar.
+
+## Bootstrap
+
+**Bootstrap of model 1**
+```{r}
+boot.fn = function(data, index){
+	return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + 
+    poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
+    pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot11=boot(raw_data, boot.fn, 10000)
+boot11_tidy=tidy(boot11)
+mean(boot11_tidy$bias)
+mean(boot11_tidy$std.error)
+```
+
+**Bootstrap of model 2**
+```{r}
+boot.fn2 = function(data, index){
+	return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot9=boot(raw_data, boot.fn2, 10000)
+boot9_tidy=tidy(boot9)
+mean(boot9_tidy$bias)
+mean(boot9_tidy$std.error)
+```
+
+**Bootstrap of model 3**
+```{r}
+boot.fn3 = function(data, index){
+	return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot10=boot(raw_data, boot.fn3, 10000)
+boot10_tidy=tidy(boot10)
+mean(boot10_tidy$bias)
+mean(boot10_tidy$std.error)
+```
