@@ -243,7 +243,7 @@ summary(try3)
     ## Multiple R-squared:  0.4929, Adjusted R-squared:  0.4913 
     ## F-statistic: 295.1 on 10 and 3036 DF,  p-value: < 2.2e-16
 
--   P-value is very small.
+-   P-value is very small, R square increase a lot.
 
 ``` r
 try4 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_hs25_over, data = raw_data2)
@@ -282,3 +282,206 @@ summary(try4)
     ## F-statistic: 286.5 on 10 and 3036 DF,  p-value: < 2.2e-16
 
 -   P-value is too big.
+
+``` r
+try5 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_bach_deg25_over, data = raw_data2)
+summary(try5)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ avg_ann_count + incidence_rate + 
+    ##     poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    ##     pct_unemployed16_over + pct_married_households + pct_other_race_1 + 
+    ##     pct_other_race_1 * pct_bach_deg25_over, data = raw_data2)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -111.432  -11.202   -0.383   11.248  138.479 
+    ## 
+    ## Coefficients:
+    ##                                        Estimate Std. Error t value
+    ## (Intercept)                           1.041e+02  9.301e+00  11.187
+    ## avg_ann_count                        -9.695e-04  2.790e-04  -3.475
+    ## incidence_rate                        2.007e-01  6.940e-03  28.914
+    ## poverty_percent                       6.278e-01  1.021e-01   6.149
+    ## median_age_female                    -2.395e-01  7.623e-02  -3.142
+    ## pct_hs25_over                         5.399e-01  9.036e-02   5.975
+    ## pct_bach_deg25_over                  -1.577e+00  1.589e-01  -9.924
+    ## pct_unemployed16_over                 7.532e-01  1.438e-01   5.238
+    ## pct_married_households               -3.554e-01  7.594e-02  -4.680
+    ## pct_other_race_1                     -1.071e+01  2.012e+00  -5.324
+    ## pct_bach_deg25_over:pct_other_race_1  6.411e-01  1.402e-01   4.572
+    ##                                      Pr(>|t|)    
+    ## (Intercept)                           < 2e-16 ***
+    ## avg_ann_count                        0.000518 ***
+    ## incidence_rate                        < 2e-16 ***
+    ## poverty_percent                      8.81e-10 ***
+    ## median_age_female                    0.001695 ** 
+    ## pct_hs25_over                        2.57e-09 ***
+    ## pct_bach_deg25_over                   < 2e-16 ***
+    ## pct_unemployed16_over                1.73e-07 ***
+    ## pct_married_households               2.99e-06 ***
+    ## pct_other_race_1                     1.09e-07 ***
+    ## pct_bach_deg25_over:pct_other_race_1 5.02e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 19.87 on 3036 degrees of freedom
+    ## Multiple R-squared:  0.4888, Adjusted R-squared:  0.4871 
+    ## F-statistic: 290.3 on 10 and 3036 DF,  p-value: < 2.2e-16
+
+-   P-value is small.
+
+``` r
+try6 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_unemployed16_over, data = raw_data2)
+summary(try6)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ avg_ann_count + incidence_rate + 
+    ##     poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    ##     pct_unemployed16_over + pct_married_households + pct_other_race_1 + 
+    ##     pct_other_race_1 * pct_unemployed16_over, data = raw_data2)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -116.768  -11.426   -0.171   10.973  140.329 
+    ## 
+    ## Coefficients:
+    ##                                          Estimate Std. Error t value
+    ## (Intercept)                            92.2811435  9.1257607  10.112
+    ## avg_ann_count                          -0.0007306  0.0002765  -2.643
+    ## incidence_rate                          0.2009962  0.0069215  29.039
+    ## poverty_percent                         0.6182960  0.1018964   6.068
+    ## median_age_female                      -0.2011279  0.0763573  -2.634
+    ## pct_hs25_over                           0.5489587  0.0900084   6.099
+    ## pct_bach_deg25_over                    -1.1876158  0.1308386  -9.077
+    ## pct_unemployed16_over                   1.3789601  0.1696465   8.128
+    ## pct_married_households                 -0.3547688  0.0757414  -4.684
+    ## pct_other_race_1                        7.5520745  1.8540877   4.073
+    ## pct_unemployed16_over:pct_other_race_1 -1.2498679  0.2120907  -5.893
+    ##                                        Pr(>|t|)    
+    ## (Intercept)                             < 2e-16 ***
+    ## avg_ann_count                           0.00827 ** 
+    ## incidence_rate                          < 2e-16 ***
+    ## poverty_percent                        1.46e-09 ***
+    ## median_age_female                       0.00848 ** 
+    ## pct_hs25_over                          1.20e-09 ***
+    ## pct_bach_deg25_over                     < 2e-16 ***
+    ## pct_unemployed16_over                  6.26e-16 ***
+    ## pct_married_households                 2.94e-06 ***
+    ## pct_other_race_1                       4.76e-05 ***
+    ## pct_unemployed16_over:pct_other_race_1 4.21e-09 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 19.83 on 3036 degrees of freedom
+    ## Multiple R-squared:  0.4911, Adjusted R-squared:  0.4894 
+    ## F-statistic:   293 on 10 and 3036 DF,  p-value: < 2.2e-16
+
+-   P-value is very small, R square increase a lot.
+
+``` r
+try7 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_married_households, data = raw_data2)
+summary(try7)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ avg_ann_count + incidence_rate + 
+    ##     poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    ##     pct_unemployed16_over + pct_married_households + pct_other_race_1 + 
+    ##     pct_other_race_1 * pct_married_households, data = raw_data2)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -117.22  -11.48   -0.24   11.25  142.11 
+    ## 
+    ## Coefficients:
+    ##                                           Estimate Std. Error t value
+    ## (Intercept)                             95.2982464  9.8066779   9.718
+    ## avg_ann_count                           -0.0008130  0.0002786  -2.918
+    ## incidence_rate                           0.2017879  0.0069648  28.972
+    ## poverty_percent                          0.6397755  0.1025943   6.236
+    ## median_age_female                       -0.2417454  0.0768163  -3.147
+    ## pct_hs25_over                            0.5679408  0.0904800   6.277
+    ## pct_bach_deg25_over                     -1.1659866  0.1315474  -8.864
+    ## pct_unemployed16_over                    0.8366864  0.1435181   5.830
+    ## pct_married_households                  -0.3300950  0.1028507  -3.209
+    ## pct_other_race_1                        -1.3895188  5.8316033  -0.238
+    ## pct_married_households:pct_other_race_1 -0.0175540  0.1129607  -0.155
+    ##                                         Pr(>|t|)    
+    ## (Intercept)                              < 2e-16 ***
+    ## avg_ann_count                            0.00355 ** 
+    ## incidence_rate                           < 2e-16 ***
+    ## poverty_percent                         5.11e-10 ***
+    ## median_age_female                        0.00167 ** 
+    ## pct_hs25_over                           3.94e-10 ***
+    ## pct_bach_deg25_over                      < 2e-16 ***
+    ## pct_unemployed16_over                   6.13e-09 ***
+    ## pct_married_households                   0.00134 ** 
+    ## pct_other_race_1                         0.81168    
+    ## pct_married_households:pct_other_race_1  0.87652    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 19.94 on 3036 degrees of freedom
+    ## Multiple R-squared:  0.4853, Adjusted R-squared:  0.4836 
+    ## F-statistic: 286.2 on 10 and 3036 DF,  p-value: < 2.2e-16
+
+-   P-value is very large.
+
+``` r
+try = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_married_households + pct_other_race_1 * poverty_percent, data = raw_data2)
+summary(try)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = target_death_rate ~ avg_ann_count + incidence_rate + 
+    ##     poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    ##     pct_unemployed16_over + pct_married_households + pct_other_race_1 + 
+    ##     pct_other_race_1 * pct_married_households + pct_other_race_1 * 
+    ##     poverty_percent, data = raw_data2)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -109.044  -11.429   -0.033   11.362  140.252 
+    ## 
+    ## Coefficients:
+    ##                                           Estimate Std. Error t value
+    ## (Intercept)                             69.6007020 10.1252191   6.874
+    ## avg_ann_count                           -0.0009787  0.0002759  -3.547
+    ## incidence_rate                           0.1955912  0.0069168  28.278
+    ## poverty_percent                          1.2663533  0.1242058  10.196
+    ## median_age_female                       -0.2562935  0.0759012  -3.377
+    ## pct_hs25_over                            0.5477020  0.0894107   6.126
+    ## pct_bach_deg25_over                     -1.2424702  0.1302442  -9.540
+    ## pct_unemployed16_over                    0.7274812  0.1423254   5.111
+    ## pct_married_households                   0.0798017  0.1119338   0.713
+    ## pct_other_race_1                        58.4686944  8.9576355   6.527
+    ## pct_married_households:pct_other_race_1 -0.7720888  0.1411680  -5.469
+    ## poverty_percent:pct_other_race_1        -1.2536999  0.1436692  -8.726
+    ##                                         Pr(>|t|)    
+    ## (Intercept)                             7.55e-12 ***
+    ## avg_ann_count                           0.000395 ***
+    ## incidence_rate                           < 2e-16 ***
+    ## poverty_percent                          < 2e-16 ***
+    ## median_age_female                       0.000743 ***
+    ## pct_hs25_over                           1.02e-09 ***
+    ## pct_bach_deg25_over                      < 2e-16 ***
+    ## pct_unemployed16_over                   3.40e-07 ***
+    ## pct_married_households                  0.475940    
+    ## pct_other_race_1                        7.82e-11 ***
+    ## pct_married_households:pct_other_race_1 4.89e-08 ***
+    ## poverty_percent:pct_other_race_1         < 2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 19.7 on 3035 degrees of freedom
+    ## Multiple R-squared:  0.4979, Adjusted R-squared:  0.4961 
+    ## F-statistic: 273.6 on 11 and 3035 DF,  p-value: < 2.2e-16
+
+-   After adding two most significant interactions, the R squared increase from 0.4853 to 0.4979.
