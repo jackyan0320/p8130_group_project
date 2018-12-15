@@ -703,11 +703,11 @@ model_caret1
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2437, 2438, 2438, 2437 
+    ## Summary of sample sizes: 2437, 2437, 2438, 2437, 2439 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared   MAE     
-    ##   19.91451  0.4859117  14.86314
+    ##   RMSE      Rsquared   MAE    
+    ##   19.91325  0.4856199  14.8552
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -732,11 +732,11 @@ model_caret2
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2437, 2438, 2438, 2437 
+    ## Summary of sample sizes: 2439, 2435, 2439, 2438, 2437 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.93138  0.4859452  14.89743
+    ##   19.90036  0.4857876  14.85665
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -759,11 +759,11 @@ model_caret3
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2436, 2437, 2439, 2439, 2437 
+    ## Summary of sample sizes: 2436, 2438, 2438, 2437, 2439 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.89987  0.4856006  14.83529
+    ##   19.90036  0.4852346  14.85604
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 

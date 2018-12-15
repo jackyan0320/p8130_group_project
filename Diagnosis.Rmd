@@ -121,7 +121,8 @@ Based on the diagnostic plots depicted above, we can see that that the assumptio
 
 ### Model 2
 
-Through Cp and adjusted R square criteria, we build model with 9 vairables:avg_ann_count, incidence_rate, poverty_percent, median_age_female, pct_hs25_over, pct_bach_deg25_over,  pct_unemployed16_over, pct_other_race, pct_married_households
+Through Cp and adjusted R square criteria, we build model with 9 vairables:avg_ann_count, incidence_rate, poverty_percent, median_age_female, pct_hs25_over, pct_bach_deg25_over,  pct_unemployed16_over, pct_other_race, pct_married_households.
+
 ```{r}
 fit2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
 summary(fit2)
