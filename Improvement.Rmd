@@ -19,9 +19,41 @@ raw_data =
   dplyr::select(target_death_rate, everything()) 
 
 raw_data2 = raw_data %>%
-  mutate(pct_white_1 = ifelse(pct_white > 90.06, 1, 0)) %>%
-  mutate(pct_black_1 = ifelse(pct_black > 2.2476, 1, 0)) %>%
-  mutate(pct_asian_1 = ifelse(pct_asian > 0.5498, 1, 0)) %>%
-  mutate(pct_other_race_1 = ifelse(pct_other_race > 0.8262, 1, 0))
+ mutate(pct_other_race_1 = ifelse(pct_other_race > 0.8262, 1, 0))
 
 ```
+
+```{r}
+fit2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
+summary(fit2)
+fit2_bin = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race_1 + pct_married_households, data = raw_data2)
+summary(fit2_bin)
+```
+* From the previous two rmd we know that we should choose the model 2 according to parsimony. Now we want to try interaction based on model 2. We recode the pct_other_race to 0 and 1 based on median. 0 indicates fewer other race people in this county, and 1 indicates more other race people in this county. We try to interact the new variable pct_other_race_1 to other predictors one by one and see if there is association between race and these predictors.
+
+```{r}
+try1 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * avg_ann_count, data = raw_data2)
+summary(try1)
+
+```
+* First we try race and avg_ann_count. The p-value is 0.153.
+
+```{r}
+try2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * incidence_rate, data = raw_data2)
+summary(try2)
+
+```
+* The p-value for pct_other_race_1 * incidence_rate is 0.0014, indicating the race modifies the relationship between incidece rate and target mortality rate.
+
+```{r}
+try3 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * poverty_percent, data = raw_data2)
+summary(try3)
+
+```
+* P-value is very small.
+
+```{r}
+try4 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_hs25_over, data = raw_data2)
+summary(try4)
+```
+* P-value is too big.
