@@ -21,11 +21,10 @@ cancer_df =
 
 raw_data =
   cancer_df %>%
-
-
   dplyr::select(-pct_employed16_over, - pct_private_coverage_alone, -binned_inc) %>% 
   dplyr::select(-geography, -avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , -pct_hs18_24 , -pct_bach_deg18_24, -pct_some_col18_24, -median_age, -pct_private_coverage, -pct_public_coverage, -pct_public_coverage_alone, -percent_married , -birth_rate) %>% 
   dplyr::select(target_death_rate, everything()) 
+  
 
 ```
 
@@ -33,6 +32,15 @@ raw_data =
 * Then we remove "binned_inc" and "birth_rate" because we think they are not correlated to target death rate.
 * "avg_deaths_per_year",  "avg_ann_count" and "pop_est2015" are highly correlated. The last three steps show that we should choose avg_ann_count, because the p-value is the smallest, showing significant relation between target_death_rate and avg_ann_count.
 * Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw_data.
+
+###Descriptive statistic
+```{r}
+summary(raw_data$pct_white)
+summary(raw_data$pct_black)
+summary(raw_data$pct_asian)
+summary(raw_data$pct_other_race)
+```
+
 
 ###stepwise
 ```{r}
@@ -43,7 +51,7 @@ step(model1, direction = 'backward') %>%
   
 ```
 
-###cp and adjusted R
+###cp and adjusted R 
 ```{r}
 b<-regsubsets(target_death_rate ~ ., data=raw_data, nvmax = 30)
    (rs<-summary(b))
@@ -82,4 +90,5 @@ bic9 = BIC(fit2)
 bic10 = BIC(fit3)
 tibble(bic11,bic9,bic10)
 ```
-From the AIC, we can see the three models are pretty similar. 
+
+From the AIC, we can see the three models are pretty similar, and from BIC, we can see that the model 2 with 9 predictors is the smallest. 

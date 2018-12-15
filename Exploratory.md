@@ -12,8 +12,6 @@ cancer_df =
 
 raw_data =
   cancer_df %>%
-
-
   dplyr::select(-pct_employed16_over, - pct_private_coverage_alone, -binned_inc) %>% 
   dplyr::select(-geography, -avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , -pct_hs18_24 , -pct_bach_deg18_24, -pct_some_col18_24, -median_age, -pct_private_coverage, -pct_public_coverage, -pct_public_coverage_alone, -percent_married , -birth_rate) %>% 
   dplyr::select(target_death_rate, everything()) 
@@ -23,6 +21,36 @@ raw_data =
 -   Then we remove "binned\_inc" and "birth\_rate" because we think they are not correlated to target death rate.
 -   "avg\_deaths\_per\_year", "avg\_ann\_count" and "pop\_est2015" are highly correlated. The last three steps show that we should choose avg\_ann\_count, because the p-value is the smallest, showing significant relation between target\_death\_rate and avg\_ann\_count.
 -   Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw\_data.
+
+### Descriptive statistic
+
+``` r
+summary(raw_data$pct_white)
+```
+
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##   10.20   77.30   90.06   83.65   95.45  100.00
+
+``` r
+summary(raw_data$pct_black)
+```
+
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##  0.0000  0.6207  2.2476  9.1080 10.5097 85.9478
+
+``` r
+summary(raw_data$pct_asian)
+```
+
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##  0.0000  0.2542  0.5498  1.2540  1.2210 42.6194
+
+``` r
+summary(raw_data$pct_other_race)
+```
+
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##  0.0000  0.2952  0.8262  1.9835  2.1780 41.9303
 
 ### stepwise
 
@@ -358,7 +386,7 @@ abline(0,1)
 plot(2:18, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
-![](Exploratory_files/figure-markdown_github/unnamed-chunk-3-1.png) From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from plot of R square, subsets with number of 9 to 17 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence\_rate, poverty\_percent, avg\_ann\_count, pct\_hs25\_over, pct\_bach\_deg25\_over, pct\_unemployed16\_over, pct\_married\_households, median\_age\_female, and pct\_white.
+![](Exploratory_files/figure-markdown_github/unnamed-chunk-4-1.png) From the plot of Cp, points from four to ten all lie on the line, indicating subsets with these number of variables all doing good job. Also, from plot of R square, subsets with number of 9 to 17 variables are are doing well as well. Thus, for parcimony, we decide to choose the subsets with four variables, which are incidence\_rate, poverty\_percent, avg\_ann\_count, pct\_hs25\_over, pct\_bach\_deg25\_over, pct\_unemployed16\_over, pct\_married\_households, median\_age\_female, and pct\_white.
 
 AIC
 ---
@@ -398,4 +426,4 @@ tibble(bic11,bic9,bic10)
     ##    <dbl>  <dbl>  <dbl>
     ## 1 26947. 26938. 26942.
 
-From the AIC, we can see the three models are pretty similar.
+From the AIC, we can see the three models are pretty similar, and from BIC, we can see that the model 2 with 9 predictors is the smallest.

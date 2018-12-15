@@ -24,8 +24,6 @@ cancer_df =
 ``` r
 raw_data =
   cancer_df %>%
-
-
   dplyr::select(-pct_employed16_over, - pct_private_coverage_alone, -binned_inc) %>% 
   dplyr::select(-geography, -avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , -pct_hs18_24 , -pct_bach_deg18_24, -pct_some_col18_24, -median_age, -pct_private_coverage, -pct_public_coverage, -pct_public_coverage_alone, -percent_married , -birth_rate) %>% 
   dplyr::select(target_death_rate, everything()) 
@@ -644,21 +642,6 @@ plot(mult.fit_3)
 
 Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
 
-AIC
----
-
-``` r
-a=AIC(fit1)
-b=AIC(fit2)
-c=AIC(fit3)
-tibble(a,b,c)
-```
-
-    ## # A tibble: 1 x 3
-    ##        a      b      c
-    ##    <dbl>  <dbl>  <dbl>
-    ## 1 26869. 26872. 26870.
-
 Cross Validation
 ----------------
 
@@ -703,11 +686,11 @@ model_caret1
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2437, 2438, 2438, 2437 
+    ## Summary of sample sizes: 2439, 2437, 2438, 2437, 2437 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.91451  0.4859117  14.86314
+    ##   19.94746  0.4856221  14.88728
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -732,11 +715,11 @@ model_caret2
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2438, 2437, 2438, 2438, 2437 
+    ## Summary of sample sizes: 2439, 2438, 2437, 2437, 2437 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.93138  0.4859452  14.89743
+    ##   19.87922  0.4882558  14.84542
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -759,11 +742,11 @@ model_caret3
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 2436, 2437, 2439, 2439, 2437 
+    ## Summary of sample sizes: 2437, 2439, 2435, 2438, 2439 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.89987  0.4856006  14.83529
+    ##   19.87207  0.4864105  14.83248
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -834,3 +817,5 @@ mean(boot10_tidy$std.error)
 ```
 
     ## [1] 1.105661
+
+-   From the cv and bootstrap, we can see the results are pretty similar, indicate the three models have similar prediction ability. According to parsimony, we prefer the second model with 9 predictors.
