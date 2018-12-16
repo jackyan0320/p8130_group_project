@@ -86,6 +86,3 @@ summary(try)
 ```
 * After adding two most significant interactions, the R squared increase from 0.4853 to 0.4979. 
 
-```{r}
-trytry=lm(target_death_rate ~ incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
-summary(fit2)
