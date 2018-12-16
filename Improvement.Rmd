@@ -81,8 +81,11 @@ summary(try7)
 
 ```{r}
 try = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_married_households + pct_other_race_1 * poverty_percent, data = raw_data2)
-summary(try)
+summary(try) 
+summary(try) %>%
+  broom::tidy() %>%
+  knitr::kable(digits = 3)
 
 ```
-* After adding two most significant interactions, the R squared increase from 0.4853 to 0.4979. 
+
 
