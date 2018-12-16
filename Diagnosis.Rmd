@@ -290,7 +290,7 @@ Based on the diagnostic plots depicted above, we can see that that the assumptio
 **Cross validation of model 1**
 ```{r}
 library(caret)
-data_train = trainControl(method="cv", number=5)
+data_train = trainControl(method = "repeatedcv", number = 5, repeats = 10)
 model_caret1 = train(target_death_rate ~ avg_ann_count + incidence_rate + 
     poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
     pct_unemployed16_over + pct_white + pct_black + pct_other_race + 

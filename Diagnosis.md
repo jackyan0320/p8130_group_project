@@ -243,7 +243,7 @@ Based on the diagnostic plots depicted above, we can see that that the assumptio
 
 ### Model 2
 
-Through Cp and adjusted R square criteria, we build model with 9 vairables:avg\_ann\_count, incidence\_rate, poverty\_percent, median\_age\_female, pct\_hs25\_over, pct\_bach\_deg25\_over, pct\_unemployed16\_over, pct\_other\_race, pct\_married\_households
+Through Cp and adjusted R square criteria, we build model with 9 vairables:avg\_ann\_count, incidence\_rate, poverty\_percent, median\_age\_female, pct\_hs25\_over, pct\_bach\_deg25\_over, pct\_unemployed16\_over, pct\_other\_race, pct\_married\_households.
 
 ``` r
 fit2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
@@ -668,7 +668,7 @@ library(caret)
     ##     lift
 
 ``` r
-data_train = trainControl(method="cv", number=5)
+data_train = trainControl(method = "repeatedcv", number = 5, repeats = 10)
 model_caret1 = train(target_death_rate ~ avg_ann_count + incidence_rate + 
     poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
     pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
@@ -685,20 +685,12 @@ model_caret1
     ##   11 predictor
     ## 
     ## No pre-processing
-    ## Resampling: Cross-Validated (5 fold) 
-<<<<<<< HEAD
-    ## Summary of sample sizes: 2437, 2437, 2438, 2437, 2439 
-    ## Resampling results:
-    ## 
-    ##   RMSE      Rsquared   MAE    
-    ##   19.91325  0.4856199  14.8552
-=======
-    ## Summary of sample sizes: 2439, 2437, 2438, 2437, 2437 
+    ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
+    ## Summary of sample sizes: 2439, 2437, 2438, 2436, 2438, 2438, ... 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.94746  0.4856221  14.88728
->>>>>>> 91fc2d303414a346ae32a2818d6829765e01cac0
+    ##   19.91353  0.4859596  14.86439
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -722,20 +714,12 @@ model_caret2
     ##    9 predictor
     ## 
     ## No pre-processing
-    ## Resampling: Cross-Validated (5 fold) 
-<<<<<<< HEAD
-    ## Summary of sample sizes: 2439, 2435, 2439, 2438, 2437 
+    ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
+    ## Summary of sample sizes: 2437, 2438, 2437, 2438, 2438, 2437, ... 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.90036  0.4857876  14.85665
-=======
-    ## Summary of sample sizes: 2439, 2438, 2437, 2437, 2437 
-    ## Resampling results:
-    ## 
-    ##   RMSE      Rsquared   MAE     
-    ##   19.87922  0.4882558  14.84542
->>>>>>> 91fc2d303414a346ae32a2818d6829765e01cac0
+    ##   19.91768  0.4848753  14.86858
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -757,20 +741,12 @@ model_caret3
     ##   10 predictor
     ## 
     ## No pre-processing
-    ## Resampling: Cross-Validated (5 fold) 
-<<<<<<< HEAD
-    ## Summary of sample sizes: 2436, 2438, 2438, 2437, 2439 
+    ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
+    ## Summary of sample sizes: 2439, 2439, 2437, 2436, 2437, 2437, ... 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared   MAE     
-    ##   19.90036  0.4852346  14.85604
-=======
-    ## Summary of sample sizes: 2437, 2439, 2435, 2438, 2439 
-    ## Resampling results:
-    ## 
-    ##   RMSE      Rsquared   MAE     
-    ##   19.87207  0.4864105  14.83248
->>>>>>> 91fc2d303414a346ae32a2818d6829765e01cac0
+    ##   RMSE      Rsquared  MAE     
+    ##   19.90842  0.485755  14.83709
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
