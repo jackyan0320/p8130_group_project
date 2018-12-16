@@ -21,12 +21,15 @@ cancer_df =
 
 raw_data =
   cancer_df %>%
-  dplyr::select(-pct_employed16_over, - pct_private_coverage_alone, -binned_inc) %>% 
+  dplyr::select(-pct_employed16_over, -pct_private_coverage_alone, -binned_inc) %>% 
   dplyr::select(-geography, -avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , -pct_hs18_24 , -pct_bach_deg18_24, -pct_some_col18_24, -median_age, -pct_private_coverage, -pct_public_coverage, -pct_public_coverage_alone, -percent_married , -birth_rate) %>% 
   dplyr::select(target_death_rate, everything()) 
   
 
 ```
+
+
+
 
 * First we remove two variables with lots of missing values "pct_employed16_over" and "pct_private_coverage_alone".
 * Then we remove "binned_inc" and "birth_rate" because we think they are not correlated to target death rate.
