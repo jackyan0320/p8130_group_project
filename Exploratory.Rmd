@@ -8,6 +8,9 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library("leaps")
+library(olsrr)
+library(boot)
+library(broom)
 ```
 
 ## Data manipulation
@@ -84,3 +87,435 @@ tibble(bic11,bic9,bic10)
 ```
 
 From the AIC, we can see the three models are pretty similar, and from BIC, we can see that the model 2 with 9 predictors is the smallest. 
+
+
+## Diagnosis
+
+### Model 1
+
+Through stepwise: we build a model with 11 variables
+```{r}
+fit1 = lm(target_death_rate ~ avg_ann_count + incidence_rate + 
+    poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
+    pct_married_households, data = raw_data)
+summary(fit1)
+```
+
+**outliers**
+
+```{r}
+# Studentized deleted residuals
+stu_res_1 = rstandard(fit1) 
+
+
+# Rule of thumb cutoff -- 2.5 
+outliers_y_1 = stu_res_1[abs(stu_res_1)>2.5] 
+outliers_y_1 %>% 
+  length()
+```
+According to rule of thumb, any observation with absolute studentized residual (|ri|) greater than 2.5 may be considered as an outlier of Y. In this dataset we have 68 outliers in Y.
+
+```{r}
+# Get hat matrix values  
+state.hat_1 = hatvalues(fit1) 
+state.hat_1[state.hat_1 > 0.2] # Cutoff = 0.2
+state.hat_1[state.hat_1 > 0.5] # Cutoff = 0.5
+```
+When we use cutoff=0.2, there is 1 leverages in the data, and when we use cutoff = 0.5, there is no leverage in the data. Which means that there 1 moderate leverages in the data, no high leverage in the data.
+
+**influential observations**
+```{r}
+# influential observations
+inf_1 = influence.measures(fit1)
+
+ols_plot_cooksd_chart(fit1)
+ols_plot_dffits(fit1)
+
+```
+
+```{r}
+par(mfrow = c(2,2)) 
+plot(fit1)
+```
+Based on Cook's distance and DFFITS, number 282, 1000 and 1059 observations are potential influential observations in the dataset. 
+
+Based on the diagnostic plots depicted above, we can also treat the number 282, 1000 and 1059 observations as potential influential outliers.
+
+```{r}
+# Remove potential outlier 282.
+raw_1 = raw_data[-c(282,1000, 1059),] 
+
+# Fit a LM model for raw_2 
+mult.fit_1 = lm(target_death_rate ~ avg_ann_count + incidence_rate + 
+    poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
+    pct_married_households, data = raw_1)
+
+# compare the model of these two
+summary(fit1)
+summary(mult.fit_1)
+
+```
+
+Comparing the model estimates with and without outliers, we have a few observations:
+
+1. All coefficients have changed, and some of changes are magnitude.
+
+2. The removal of cases 282, 1000 and 1059 doesn't changes the directionality of the coefficients. 
+
+3. After removing case 282, the standard errors of the coefficients decrease (from 19.84 to 19.66), and the adjusted R square increase  (from 0.4887  to  0.4976 ). It is understandable as we have removed an influential/outlier point.
+
+Therefore, we might deal with influential points:
+
+**Checking model assumptions**
+
+Checking for the assumption after removing the outliers:
+```{r}
+par(mfrow = c(2,2)) 
+plot(mult.fit_1)
+```
+
+Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
+
+### Model 2
+
+Through Cp and adjusted R square criteria, we build model with 9 vairables:avg_ann_count, incidence_rate, poverty_percent, median_age_female, pct_hs25_over, pct_bach_deg25_over,  pct_unemployed16_over, pct_other_race, pct_married_households.
+
+```{r}
+fit2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
+summary(fit2)
+
+```
+
+**outilers**
+
+```{r}
+# Studentized deleted residuals
+stu_res_2 = rstandard(fit2) 
+
+
+# Rule of thumb cutoff -- 2.5 
+outliers_y_2 = stu_res_2[abs(stu_res_2)>2.5] 
+outliers_y_2 %>% 
+  length()
+```
+According to rule of thumb, any observation with absolute studentized residual (|ri|) greater than 2.5 may be considered as an outlier Y. In this dataset we have 70 outliers in Y.
+
+```{r}
+# Get hat matrix values  
+state.hat_2 = hatvalues(fit2) 
+state.hat_2[state.hat_2 > 0.2] # Cutoff = 0.2
+state.hat_2[state.hat_2 > 0.5] # Cutoff = 0.5
+```
+When we use cutoff=0.2, there is 1 leverages in the data, and when we use cutoff = 0.5, there is no leverage in the data. Which means that there 1 moderate leverages in the data, no high leverage in the data.
+
+**influential observations**
+
+```{r}
+# influential observations
+inf_2 = influence.measures(fit2)
+
+ols_plot_cooksd_chart(fit2)
+ols_plot_dffits(fit2)
+```
+
+```{r}
+par(mfrow = c(2,2)) 
+plot(fit2)
+```
+
+Based on Cook's distance and DFFITS, there are many potential influential observations, but number 282, 1000 and 1059 observations are the most influential ones. 
+
+Based on the diagnostic plots depicted above, we can also treat the number 282, 1000 and 1059 observations as a potential influential outliers.
+
+```{r}
+# Remove potential outlier 282,1000,1059.
+raw_2 = raw_data[-c(282,1000,1059),] 
+
+# Fit a LM model for raw_2 
+mult.fit_2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_2)
+
+# compare the model of these two
+summary(fit2)
+summary(mult.fit_2)
+
+```
+
+Comparing the model estimates with and without outliers, we have a few observations:
+
+1. All coefficients have changed, and some of changes are magnitude.
+
+2. The removal of cases 282, 1000 and 1059 doesn't changes the directionality of the coefficients. 
+
+3. After removing case 282, 1000 and 1059, the standard errors of the coefficients decrease (from 19.86 to 19.67), and the adjusted R square increase  (from 0.4879  to  0.497 ). It is understandable as we have removed an influential/outlier point.
+
+Therefore, we might deal with influential points:
+
+**Checking model assumptions**
+
+Checking for the assumption after removing the outliers:
+```{r}
+par(mfrow = c(2,2)) 
+plot(mult.fit_2)
+```
+
+Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
+
+### Model 3
+
+Through Cp and adjusted R square criteria, we build model with 10 vairables:avg_ann_count, incidence_rate, med_income, poverty_percent, median_age_female, pct_hs25_over, pct_bach_deg25_over,pct_unemployed16_over, pct_other_race, pct_married_households
+```{r}
+fit3 = lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
+summary(fit3)
+```
+
+**outliers**
+
+```{r}
+# Studentized deleted residuals
+stu_res_3 = rstandard(fit3) 
+
+
+# Rule of thumb cutoff -- 2.5 
+outliers_y_3 = stu_res_3[abs(stu_res_3)>2.5] 
+outliers_y_3 %>% 
+  length()
+```
+According to rule of thumb, any observation with absolute studentized residual (|ri|) greater than 2.5 may be considered as an outlier Y. In this dataset we have 69 outliers in Y.
+
+```{r}
+# Get hat matrix values  
+state.hat_3 = hatvalues(fit3) 
+state.hat_3[state.hat_3 > 0.2] # Cutoff = 0.2
+state.hat_3[state.hat_3 > 0.5] # Cutoff = 0.5
+```
+When we use cutoff=0.2, there is 1 leverages in the data, and when we use cutoff = 0.5, there is no leverage in the data. Which means that there 1 moderate leverages in the data, no high leverage in the data.
+
+**influential observations**
+
+```{r}
+# influential observations
+inf_3 = influence.measures(fit3)
+
+ols_plot_cooksd_chart(fit3)
+ols_plot_dffits(fit3)
+```
+
+```{r}
+par(mfrow = c(2,2)) 
+plot(fit3)
+```
+
+Based on Cook's distance and DFFITS, there are many potential influential observations, but number 282, 1000 and 1059 observations are the most influential ones. 
+
+Based on the diagnostic plots depicted above, we can also treat the number 282, 1000 ad 1059 observations as a potential influential outliers.
+
+```{r}
+# Remove potential outlier 282.
+raw_3 = raw_data[-c(282,1000,1059),] 
+
+# Fit a LM model for raw_2 
+mult.fit_3 =lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_3)
+
+# compare the model of these two
+summary(fit3)
+summary(mult.fit_3)
+
+```
+
+```{r}
+table = broom::tidy(fit3)
+table2 = broom::tidy(mult.fit_3)
+tibble(
+  term = table$term,
+   estimate_with = table$estimate,
+  estiamte_without = table2$estimate
+    ) %>% 
+   knitr::kable(digits = 3)
+
+tibble(
+  term = c("with", "without"),
+  residual_standard_error = c(19.85, 19.66),
+  Adjusted_R_squared = c(0.4884, 0.4973)
+) %>% 
+  knitr::kable(digits = 3)
+```
+
+Comparing the model estimates with and without outliers, we have a few observations:
+
+1. All coefficients have changed, and some of changes are magnitude.
+
+2. The removal of case 282, 1000 and 1059 doesn't changes the directionality of the coefficients. 
+
+3. After removing case 282, 1000 and 1059, the standard errors of the coefficients decrease (from 19.85 to 19.66), and the adjusted R square increase  (from 0.4884  to  0.4973 ). It is understandable as we have removed an influential/outlier point.
+
+Therefore, we might deal with influential points:
+
+**Checking model assumptions**
+
+Checking for the assumption after removing the outliers:
+```{r}
+par(mfrow = c(2,2)) 
+plot(mult.fit_3)
+```
+
+Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
+
+
+
+## Cross Validation
+
+**Cross validation of model 1**
+```{r}
+library(caret)
+data_train = trainControl(method = "repeatedcv", number = 5, repeats = 10)
+model_caret1 = train(target_death_rate ~ avg_ann_count + incidence_rate + 
+    poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
+    pct_married_households, data = raw_data,
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret1                                            # RMSE and Rsquare of model 1 #
+ 
+```
+* From the 5-fold cross validation, the RMSE for the 11-variable model is about 19.87598.
+
+**Cross validation of model 2**
+```{r}
+
+model_caret2 = train(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female +   pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
+                     
+
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret2                                             # RMSE and Rsquare of model 2 #
+
+```
+
+
+**Cross validation of model 3**
+```{r}
+
+model_caret3 = train(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data,
+                     
+
+                   trControl=data_train,
+                   method='lm',
+                   na.action=na.pass)
+model_caret3                                             # RMSE and Rsquare of model 3 #
+```
+
+* From the 5-fold cross validation, the RMSE for the three models are pretty similar.
+
+## Bootstrap
+
+**Bootstrap of model 1**
+```{r}
+boot.fn = function(data, index){
+	return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + 
+    poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + 
+    pct_unemployed16_over + pct_white + pct_black + pct_other_race + 
+    pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot11=boot(raw_data, boot.fn, 10000)
+boot11_tidy=tidy(boot11)
+mean(boot11_tidy$bias)
+mean(boot11_tidy$std.error)               # mean bias and sd for model 1 #
+```
+
+**Bootstrap of model 2**
+```{r}
+boot.fn2 = function(data, index){
+	return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot9=boot(raw_data, boot.fn2, 10000)
+boot9_tidy=tidy(boot9)
+mean(boot9_tidy$bias)
+mean(boot9_tidy$std.error)                # mean bias and sd for model 2 #
+```
+
+**Bootstrap of model 3**
+```{r}
+boot.fn3 = function(data, index){
+	return(coef(lm(target_death_rate ~ avg_ann_count + incidence_rate + med_income + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data, subset=index)))
+}
+set.seed(1)
+boot10=boot(raw_data, boot.fn3, 10000)
+boot10_tidy=tidy(boot10)
+mean(boot10_tidy$bias)
+mean(boot10_tidy$std.error)               # mean bias and sd for model 3 #
+
+```
+
+```{r}
+raw_data2 = raw_data %>%
+ mutate(pct_other_race_1 = ifelse(pct_other_race > 0.8262, 1, 0))
+
+```
+
+```{r}
+fit2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race + pct_married_households, data = raw_data)
+summary(fit2)
+fit2_bin = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_other_race_1 + pct_married_households, data = raw_data2)
+summary(fit2_bin)
+```
+* From the previous two rmd we know that we should choose the model 2 according to parsimony. Now we want to try interaction based on model 2. We recode the pct_other_race to 0 and 1 based on median. 0 indicates fewer other race people in this county, and 1 indicates more other race people in this county. We try to interact the new variable pct_other_race_1 to other predictors one by one and see if there is association between race and these predictors.
+
+```{r}
+try1 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * avg_ann_count, data = raw_data2)
+summary(try1)
+
+```
+* First we try race and avg_ann_count. The p-value is 0.153.
+
+```{r}
+try2 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * incidence_rate, data = raw_data2)
+summary(try2)
+
+```
+* The p-value for pct_other_race_1 * incidence_rate is 0.0014, indicating the race modifies the relationship between incidece rate and target mortality rate.
+
+```{r}
+try3 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * poverty_percent, data = raw_data2)
+summary(try3)
+
+```
+* P-value is very small, R square increase a lot.
+
+```{r}
+try4 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_hs25_over, data = raw_data2)
+summary(try4)
+```
+* P-value is too big.
+
+```{r}
+try5 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_bach_deg25_over, data = raw_data2)
+summary(try5)
+
+```
+* P-value is small.
+
+```{r}
+try6 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_unemployed16_over, data = raw_data2)
+summary(try6)
+
+```
+* P-value is very small, R square increase a lot.
+
+```{r}
+try7 = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_married_households, data = raw_data2)
+summary(try7)
+
+```
+* P-value is very large.
+
+```{r}
+final_model = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_married_households + pct_other_race_1 * poverty_percent, data = raw_data2)
+summary(final_model) 
+
+```
