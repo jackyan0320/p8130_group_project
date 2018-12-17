@@ -343,7 +343,7 @@ Based on Cook's distance and DFFITS, there are many potential influential observ
 Based on the diagnostic plots depicted above, we can also treat the number 282, 1000 and 1059 observations as a potential influential outliers.
 
 ``` r
-# Remove potential outlier 282.
+# Remove potential outlier 282,1000,1059.
 raw_2 = raw_data[-c(282,1000,1059),] 
 
 # Fit a LM model for raw_2 
@@ -676,7 +676,7 @@ model_caret1 = train(target_death_rate ~ avg_ann_count + incidence_rate +
                    trControl=data_train,
                    method='lm',
                    na.action=na.pass)
-model_caret1 
+model_caret1                                            # RMSE and Rsquare of model 1 #
 ```
 
     ## Linear Regression 
@@ -686,11 +686,11 @@ model_caret1
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
-    ## Summary of sample sizes: 2438, 2437, 2436, 2439, 2438, 2438, ... 
+    ## Summary of sample sizes: 2438, 2438, 2438, 2437, 2437, 2437, ... 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared   MAE     
-    ##   19.91369  0.4854489  14.86817
+    ##   RMSE     Rsquared   MAE     
+    ##   19.9218  0.4850042  14.85971
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -705,7 +705,7 @@ model_caret2 = train(target_death_rate ~ avg_ann_count + incidence_rate + povert
                    trControl=data_train,
                    method='lm',
                    na.action=na.pass)
-model_caret2
+model_caret2                                             # RMSE and Rsquare of model 2 #
 ```
 
     ## Linear Regression 
@@ -715,11 +715,11 @@ model_caret2
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
-    ## Summary of sample sizes: 2438, 2436, 2438, 2438, 2438, 2437, ... 
+    ## Summary of sample sizes: 2437, 2439, 2436, 2437, 2439, 2437, ... 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared  MAE     
-    ##   19.90664  0.485472  14.87055
+    ##   RMSE      Rsquared   MAE     
+    ##   19.91999  0.4849281  14.87526
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -732,7 +732,7 @@ model_caret3 = train(target_death_rate ~ avg_ann_count + incidence_rate + med_in
                    trControl=data_train,
                    method='lm',
                    na.action=na.pass)
-model_caret3
+model_caret3                                             # RMSE and Rsquare of model 3 #
 ```
 
     ## Linear Regression 
@@ -742,27 +742,13 @@ model_caret3
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
-    ## Summary of sample sizes: 2438, 2437, 2438, 2436, 2439, 2437, ... 
+    ## Summary of sample sizes: 2438, 2438, 2438, 2437, 2437, 2439, ... 
     ## Resampling results:
     ## 
-    ##   RMSE     Rsquared   MAE     
-    ##   19.8984  0.4864253  14.83727
+    ##   RMSE      Rsquared   MAE     
+    ##   19.90195  0.4861973  14.83856
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
-
-``` r
-cv_result=matrix(c(19.92548,19.91489,19.91665,0.4847982,0.4858724,0.4854369),ncol=3, byrow=TRUE)
-rownames(cv_result)=c("RMSE","Rsquared")
-colnames(cv_result)=c("Model1","Model2","Model3")
-cv_result=as.table(cv_result) %>%
-  knitr::kable()
-cv_result
-```
-
-|          |      Model1|      Model2|      Model3|
-|----------|-----------:|-----------:|-----------:|
-| RMSE     |  19.9254800|  19.9148900|  19.9166500|
-| Rsquared |   0.4847982|   0.4858724|   0.4854369|
 
 -   From the 5-fold cross validation, the RMSE for the three models are pretty similar.
 
@@ -781,9 +767,16 @@ boot.fn = function(data, index){
 set.seed(1)
 boot11=boot(raw_data, boot.fn, 10000)
 boot11_tidy=tidy(boot11)
-model1_bias=mean(boot11_tidy$bias)
-model1_sd=mean(boot11_tidy$std.error)
+mean(boot11_tidy$bias)
 ```
+
+    ## [1] -0.004884799
+
+``` r
+mean(boot11_tidy$std.error)               # mean bias and sd for model 1 #
+```
+
+    ## [1] 1.130276
 
 **Bootstrap of model 2**
 
@@ -794,9 +787,16 @@ boot.fn2 = function(data, index){
 set.seed(1)
 boot9=boot(raw_data, boot.fn2, 10000)
 boot9_tidy=tidy(boot9)
-model2_bias=mean(boot9_tidy$bias)
-model2_sd=mean(boot9_tidy$std.error)
+mean(boot9_tidy$bias)
 ```
+
+    ## [1] -0.003316342
+
+``` r
+mean(boot9_tidy$std.error)                # mean bias and sd for model 2 #
+```
+
+    ## [1] 1.200722
 
 **Bootstrap of model 3**
 
@@ -807,13 +807,13 @@ boot.fn3 = function(data, index){
 set.seed(1)
 boot10=boot(raw_data, boot.fn3, 10000)
 boot10_tidy=tidy(boot10)
-model3_bias=mean(boot10_tidy$bias)
-model3_sd=mean(boot10_tidy$std.error)
-
-tibble(model1_bias,model1_sd,model2_bias,model2_sd,model3_bias,model3_sd) %>%
-  knitr::kable()
+mean(boot10_tidy$bias)
 ```
 
-|  model1\_bias|  model1\_sd|  model2\_bias|  model2\_sd|  model3\_bias|  model3\_sd|
-|-------------:|-----------:|-------------:|-----------:|-------------:|-----------:|
-|    -0.0048848|    1.130276|    -0.0033163|    1.200722|    -0.0013798|    1.105661|
+    ## [1] -0.001379811
+
+``` r
+mean(boot10_tidy$std.error)               # mean bias and sd for model 3 #
+```
+
+    ## [1] 1.105661
