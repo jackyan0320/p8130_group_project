@@ -22,36 +22,6 @@ raw_data =
 -   "avg\_deaths\_per\_year", "avg\_ann\_count" and "pop\_est2015" are highly correlated. The last three steps show that we should choose avg\_ann\_count, because the p-value is the smallest, showing significant relation between target\_death\_rate and avg\_ann\_count.
 -   Finally we plan to choose at least one variable from each category. We fit each variables in MLR and find the variable with small p-value. Finally we get 17 variables left and get raw\_data.
 
-### Descriptive statistic
-
-``` r
-summary(raw_data$pct_white)
-```
-
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##   10.20   77.30   90.06   83.65   95.45  100.00
-
-``` r
-summary(raw_data$pct_black)
-```
-
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##  0.0000  0.6207  2.2476  9.1080 10.5097 85.9478
-
-``` r
-summary(raw_data$pct_asian)
-```
-
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##  0.0000  0.2542  0.5498  1.2540  1.2210 42.6194
-
-``` r
-summary(raw_data$pct_other_race)
-```
-
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##  0.0000  0.2952  0.8262  1.9835  2.1780 41.9303
-
 ### stepwise
 
 ``` r
@@ -127,9 +97,9 @@ step(model1, direction = 'backward') %>%
     ## <none>                                1194045 18226
     ## - pct_black               1       867 1194912 18226
     ## - pct_white               1      1331 1195377 18227
-    ## - avg_ann_count           1      1969 1196014 18228
+    ## - avg_ann_count           1      1969 1196014 18229
     ## - median_age_female       1      2109 1196154 18229
-    ## - pct_married_households  1      5912 1199958 18238
+    ## - pct_married_households  1      5912 1199958 18239
     ## - pct_unemployed16_over   1      7970 1202016 18244
     ## - poverty_percent         1     11159 1205205 18252
     ## - pct_hs25_over           1     11763 1205808 18253
@@ -212,7 +182,7 @@ step(model1, direction = 'backward') %>%
     ##                          Df Sum of Sq     RSS   AIC
     ## <none>                                1195046 18220
     ## - pct_black               1      1247 1196293 18221
-    ## - avg_ann_count           1      1777 1196823 18222
+    ## - avg_ann_count           1      1777 1196823 18223
     ## - pct_white               1      2579 1197625 18225
     ## - median_age_female       1      3518 1198564 18227
     ## - pct_married_households  1      5074 1200119 18231
@@ -608,7 +578,7 @@ abline(0,1)
 plot(2:18, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
-![](Exploratory_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](Exploratory_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 ``` r
 rs$cp
