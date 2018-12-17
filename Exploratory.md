@@ -12,7 +12,7 @@ cancer_df =
 
 raw_data =
   cancer_df %>%
-  dplyr::select(-pct_employed16_over, - pct_private_coverage_alone, -binned_inc) %>% 
+  dplyr::select(-pct_employed16_over, -pct_private_coverage_alone, -binned_inc) %>% 
   dplyr::select(-geography, -avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , -pct_hs18_24 , -pct_bach_deg18_24, -pct_some_col18_24, -median_age, -pct_private_coverage, -pct_public_coverage, -pct_public_coverage_alone, -percent_married , -birth_rate) %>% 
   dplyr::select(target_death_rate, everything()) 
 ```
@@ -127,9 +127,9 @@ step(model1, direction = 'backward') %>%
     ## <none>                                1194045 18226
     ## - pct_black               1       867 1194912 18226
     ## - pct_white               1      1331 1195377 18227
-    ## - avg_ann_count           1      1969 1196014 18229
+    ## - avg_ann_count           1      1969 1196014 18228
     ## - median_age_female       1      2109 1196154 18229
-    ## - pct_married_households  1      5912 1199958 18239
+    ## - pct_married_households  1      5912 1199958 18238
     ## - pct_unemployed16_over   1      7970 1202016 18244
     ## - poverty_percent         1     11159 1205205 18252
     ## - pct_hs25_over           1     11763 1205808 18253
@@ -212,7 +212,7 @@ step(model1, direction = 'backward') %>%
     ##                          Df Sum of Sq     RSS   AIC
     ## <none>                                1195046 18220
     ## - pct_black               1      1247 1196293 18221
-    ## - avg_ann_count           1      1777 1196823 18223
+    ## - avg_ann_count           1      1777 1196823 18222
     ## - pct_white               1      2579 1197625 18225
     ## - median_age_female       1      3518 1198564 18227
     ## - pct_married_households  1      5074 1200119 18231

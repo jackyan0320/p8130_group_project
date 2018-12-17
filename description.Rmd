@@ -1,0 +1,310 @@
+---
+title: "Description"
+author: "Xue Yang"
+date: "12/15/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library("leaps")
+```
+
+```{r, message = FALSE}
+cancer_df =
+  read_csv("Cancer_Registry.csv") %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(target_death_rate, everything())
+
+raw_data =
+  cancer_df %>%
+  dplyr::select(-pct_employed16_over, -pct_private_coverage_alone, -binned_inc) %>% 
+  dplyr::select(-geography, -avg_deaths_per_year, -pop_est2015, -pct_no_hs18_24 , -pct_hs18_24 , -pct_bach_deg18_24, -pct_some_col18_24, -median_age, -pct_private_coverage, -pct_public_coverage, -pct_public_coverage_alone, -percent_married , -birth_rate) %>% 
+  dplyr::select(target_death_rate, everything()) 
+  
+
+```
+
+
+## Descriptive and visualization
+
+**Check for missing value**
+
+```{r}
+# calculate the number of missing value and the percentage of the missing value of them
+cancer_df %>% 
+  summarise_all(funs(sum(is.na(.)))) %>% 
+  gather(term, num_na, everything()) %>% 
+  mutate(percent = num_na/nrow(cancer_df)) %>% 
+  filter(percent !=0) %>% 
+  knitr::kable(digits = 3)
+```
+
+delete pct_some_col18_24 and pct_employed16_over, pct_private_coverage_alone 
+
+```{r}
+cancer_df = 
+  cancer_df %>% 
+  dplyr::select(-pct_some_col18_24, -pct_employed16_over, -pct_private_coverage_alone)
+```
+
+delete geography, binnedlnc
+
+```{r}
+cancer_df = 
+  cancer_df %>% 
+  dplyr::select(-geography, - binned_inc)
+```
+
+group the variables
+
+```{r}
+# age
+age = 
+  cancer_df %>% 
+  dplyr::select(target_death_rate, median_age, median_age_male, median_age_female)
+
+# edu
+edu = 
+  cancer_df %>% 
+  dplyr::select(target_death_rate, pct_no_hs18_24, pct_hs18_24, pct_bach_deg18_24, pct_hs25_over, pct_bach_deg25_over)
+
+# employ
+
+emp = 
+  cancer_df %>% 
+  dplyr::select(target_death_rate, pct_unemployed16_over)
+
+# coverage
+
+coverage  =
+  cancer_df %>% 
+  dplyr::select(target_death_rate, pct_private_coverage, pct_emp_priv_coverage, pct_public_coverage , pct_public_coverage_alone )
+
+# race
+race =
+  cancer_df %>% 
+  dplyr::select(target_death_rate, pct_white, pct_black, pct_asian, pct_other_race)
+
+# marry 
+marry = 
+  cancer_df %>% 
+  dplyr::select(target_death_rate, pct_married_households, percent_married)
+
+# other
+other = 
+  cancer_df %>% 
+  dplyr::select(target_death_rate, avg_ann_count, avg_deaths_per_year, incidence_rate, med_income, pop_est2015, poverty_percent, study_per_cap, avg_household_size, birth_rate)
+
+```
+
+
+```{r}
+cor(age)
+pairs(age)
+
+cor(edu)
+pairs(edu)
+
+cor(emp)
+pairs(emp)
+
+cor(coverage)
+pairs(coverage)
+
+cor(race)
+pairs(race)
+
+cor(marry)
+pairs(marry)
+
+cor(other)
+pairs(other)
+```
+
+```{r}
+cancer_df %>% 
+  ggplot(aes(x = target_death_rate)) +
+  geom_histogram() +
+  labs(
+    title = "Histogram of Target Death Rate",
+    x = "Target Death Rate",
+    y = "Frequency"
+  )+
+theme_bw() + 
+  theme(legend.position = "bottom")
+```
+
+From the plot of the distribution of "total cost", we can find that it is significant right skewed, in other words, the distribution of "total cost" is NOT symmetrical at all.
+
+We can do some descriptive statistics for continuous variables:
+
+```{r}
+# descriptive statistics for continuous variables
+#age
+age_list = list(age$median_age, age$median_age_male, age$median_age_female)
+min = sapply(age_list, min)
+max = sapply(age_list, max)
+mean = sapply(age_list, mean)
+median = sapply(age_list, median)
+sd = sapply(age_list, sd)
+IQR = sapply(age_list, IQR)
+age_description = rbind(min, max, mean, median, sd, IQR)
+colnames(age_description) = c("median_age","median_age_male","median_age_female")
+age_description %>% 
+  knitr::kable(digits = 3)
+
+# edu 
+edu_list = list(edu$pct_no_hs18_24, edu$pct_hs18_24, edu$pct_bach_deg18_24, edu$pct_hs25_over, edu$pct_bach_deg25_over)
+min = sapply(edu_list, min)
+max = sapply(edu_list, max)
+mean = sapply(edu_list, mean)
+median = sapply(edu_list, median)
+sd = sapply(edu_list, sd)
+IQR = sapply(edu_list, IQR)
+edu_description = rbind(min, max, mean, median, sd, IQR)
+colnames(edu_description) = c("pct_no_hs18_24","pct_hs18_24", "pct_bach_deg18_24", "pct_hs25_over", "pct_bach_deg25_over")
+edu_description %>% 
+  knitr::kable(digits = 3)
+
+# employ
+emp_list = list(emp$pct_unemployed16_over)
+min = sapply(emp_list, min)
+max = sapply(emp_list, max)
+mean = sapply(emp_list, mean)
+median = sapply(emp_list, median)
+sd = sapply(emp_list, sd)
+IQR = sapply(emp_list, IQR)
+emp_description = rbind(min, max, mean, median, sd, IQR)
+colnames(emp_description) = c("pct_unemployed16_over")
+emp_description %>% 
+  knitr::kable(digits = 3)
+
+# coverage
+coverage_list = list(coverage$pct_private_coverage, coverage$pct_emp_priv_coverage, coverage$pct_public_coverage, coverage$pct_public_coverage_alone)
+min = sapply(coverage_list, min)
+max = sapply(coverage_list, max)
+mean = sapply(coverage_list, mean)
+median = sapply(coverage_list, median)
+sd = sapply(coverage_list, sd)
+IQR = sapply(coverage_list, IQR)
+coverage_description = rbind(min, max, mean, median, sd, IQR)
+colnames(coverage_description) = c("pct_private_coverage", "pct_emp_priv_coverage", "pct_public_coverage", "pct_public_coverage_alone")
+coverage_description %>% 
+  knitr::kable(digits = 3)
+
+# race
+race_list = list(race$pct_white, race$pct_black, race$pct_asian, race$pct_other_race)
+min = sapply(race_list, min)
+max = sapply(race_list, max)
+mean = sapply(race_list, mean)
+median = sapply(race_list, median)
+sd = sapply(race_list, sd)
+IQR = sapply(race_list, IQR)
+race_description = rbind(min, max, mean, median, sd, IQR)
+colnames(race_description) = c("pct_white", "pct_black", "pct_asian", "pct_other_race")
+race_description %>% 
+  knitr::kable(digits = 3)
+
+# marry
+marry_list = list(marry$pct_married_households, marry$percent_married)
+min = sapply(marry_list, min)
+max = sapply(marry_list, max)
+mean = sapply(marry_list, mean)
+median = sapply(marry_list, median)
+sd = sapply(marry_list, sd)
+IQR = sapply(marry_list, IQR)
+marry_description = rbind(min, max, mean, median, sd, IQR)
+colnames(marry_description) = c("pct_married_households","percent_married")
+marry_description %>% 
+  knitr::kable(digits = 3)
+
+#other
+other_list = list(other$avg_ann_count, other$avg_deaths_per_year, other$incidence_rate, other$med_income, other$pop_est2015, other$poverty_percent, other$study_per_cap, other$avg_household_size, other$birth_rate)
+min = sapply(other_list, min)
+max = sapply(other_list, max)
+mean = sapply(other_list, mean)
+median = sapply(other_list, median)
+sd = sapply(other_list, sd)
+IQR = sapply(other_list, IQR)
+other_description = rbind(min, max, mean, median, sd, IQR)
+colnames(other_description) = c("avg_ann_count", "avg_deaths_per_year", "incidence_rate", "med_income", "pop_est2015", "poverty_percent", "study_per_cap", "avg_household_size", "birth_rate")
+other_description %>% 
+  knitr::kable(digits = 3)
+```
+
+```{r}
+age %>% 
+  gather(key = variable, value = obervation, -target_death_rate) %>% 
+  ggplot(aes(x = variable, y = obervation))+
+  geom_boxplot() +
+  labs(
+    title = "Boxplot for age"
+  ) + 
+  theme_bw() + 
+  theme(legend.position = "bottom")
+
+edu %>% 
+  gather(key = variable, value = obervation, -target_death_rate) %>% 
+  ggplot(aes(x = variable, y = obervation))+
+  geom_boxplot() +
+  labs(
+    title = "Boxplot for edu"
+  ) + 
+  theme_bw() + 
+  theme(legend.position = "bottom")
+
+emp %>% 
+  gather(key = variable, value = obervation, -target_death_rate) %>% 
+  ggplot(aes(x = variable, y = obervation))+
+  geom_boxplot() +
+  labs(
+    title = "Boxplot for employ"
+  ) + 
+  theme_bw() + 
+  theme(legend.position = "bottom")
+
+coverage %>% 
+  gather(key = variable, value = obervation, -target_death_rate) %>% 
+  ggplot(aes(x = variable, y = obervation))+
+  geom_boxplot() +
+  labs(
+    title = "Boxplot for coverage"
+  ) + 
+  theme_bw() + 
+  theme(legend.position = "bottom")
+
+race %>% 
+  gather(key = variable, value = obervation, -target_death_rate) %>% 
+  ggplot(aes(x = variable, y = obervation))+
+  geom_boxplot() +
+  labs(
+    title = "Boxplot for race"
+  ) + 
+  theme_bw() + 
+  theme(legend.position = "bottom")
+
+marry %>% 
+  gather(key = variable, value = obervation, -target_death_rate) %>% 
+  ggplot(aes(x = variable, y = obervation))+
+  geom_boxplot() +
+  labs(
+    title = "Boxplot for marry"
+  ) + 
+  theme_bw() + 
+  theme(legend.position = "bottom")
+
+other %>% 
+  gather(key = variable, value = obervation, -target_death_rate) %>% 
+  ggplot(aes(x = variable, y = obervation))+
+  geom_boxplot() +
+  labs(
+    title = "Boxplot for other"
+  ) + 
+  theme_bw() + 
+  theme(legend.position = "bottom") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+
+```
+
