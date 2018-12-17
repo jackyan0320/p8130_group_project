@@ -263,6 +263,24 @@ summary(mult.fit_3)
 
 ```
 
+```{r}
+table = broom::tidy(fit3)
+table2 = broom::tidy(mult.fit_3)
+tibble(
+  term = table$term,
+   estimate_with = table$estimate,
+  estiamte_without = table2$estimate
+    ) %>% 
+   knitr::kable(digits = 3)
+
+tibble(
+  term = c("with", "without"),
+  residual_standard_error = c(19.85, 19.66),
+  Adjusted_R_squared = c(0.4884, 0.4973)
+) %>% 
+  knitr::kable(digits = 3)
+```
+
 Comparing the model estimates with and without outliers, we have a few observations:
 
 1. All coefficients have changed, and some of changes are magnitude.

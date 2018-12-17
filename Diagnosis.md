@@ -619,6 +619,45 @@ summary(mult.fit_3)
     ## Multiple R-squared:  0.499,  Adjusted R-squared:  0.4973 
     ## F-statistic: 302.1 on 10 and 3033 DF,  p-value: < 2.2e-16
 
+``` r
+table = broom::tidy(fit3)
+table2 = broom::tidy(mult.fit_3)
+tibble(
+  term = table$term,
+   estimate_with = table$estimate,
+  estiamte_without = table2$estimate
+    ) %>% 
+   knitr::kable(digits = 3)
+```
+
+| term                     |  estimate\_with|  estiamte\_without|
+|:-------------------------|---------------:|------------------:|
+| (Intercept)              |          98.432|             94.030|
+| avg\_ann\_count          |          -0.001|             -0.001|
+| incidence\_rate          |           0.195|              0.203|
+| med\_income              |           0.000|              0.000|
+| poverty\_percent         |           0.781|              0.798|
+| median\_age\_female      |          -0.240|             -0.269|
+| pct\_hs25\_over          |           0.495|              0.498|
+| pct\_bach\_deg25\_over   |          -1.401|             -1.331|
+| pct\_unemployed16\_over  |           0.730|              0.785|
+| pct\_other\_race         |          -0.689|             -0.661|
+| pct\_married\_households |          -0.365|             -0.348|
+
+``` r
+tibble(
+  term = c("with", "without"),
+  residual_standard_error = c(19.85, 19.66),
+  Adjusted_R_squared = c(0.4884, 0.4973)
+) %>% 
+  knitr::kable(digits = 3)
+```
+
+| term    |  residual\_standard\_error|  Adjusted\_R\_squared|
+|:--------|--------------------------:|---------------------:|
+| with    |                      19.85|                 0.488|
+| without |                      19.66|                 0.497|
+
 Comparing the model estimates with and without outliers, we have a few observations:
 
 1.  All coefficients have changed, and some of changes are magnitude.
@@ -638,7 +677,7 @@ par(mfrow = c(2,2))
 plot(mult.fit_3)
 ```
 
-![](Diagnosis_files/figure-markdown_github/unnamed-chunk-22-1.png)
+![](Diagnosis_files/figure-markdown_github/unnamed-chunk-23-1.png)
 
 Based on the diagnostic plots depicted above, we can see that that the assumptions hold better when removing outliers.
 
@@ -686,11 +725,11 @@ model_caret1
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
-    ## Summary of sample sizes: 2438, 2437, 2436, 2439, 2438, 2438, ... 
+    ## Summary of sample sizes: 2437, 2437, 2439, 2438, 2437, 2439, ... 
     ## Resampling results:
     ## 
     ##   RMSE      Rsquared   MAE     
-    ##   19.91369  0.4854489  14.86817
+    ##   19.92485  0.4850507  14.87081
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -715,11 +754,11 @@ model_caret2
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
-    ## Summary of sample sizes: 2438, 2436, 2438, 2438, 2438, 2437, ... 
+    ## Summary of sample sizes: 2436, 2437, 2439, 2437, 2439, 2437, ... 
     ## Resampling results:
     ## 
-    ##   RMSE      Rsquared  MAE     
-    ##   19.90664  0.485472  14.87055
+    ##   RMSE      Rsquared   MAE     
+    ##   19.91856  0.4858971  14.87285
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
@@ -742,11 +781,11 @@ model_caret3
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (5 fold, repeated 10 times) 
-    ## Summary of sample sizes: 2438, 2437, 2438, 2436, 2439, 2437, ... 
+    ## Summary of sample sizes: 2437, 2438, 2438, 2438, 2437, 2439, ... 
     ## Resampling results:
     ## 
-    ##   RMSE     Rsquared   MAE     
-    ##   19.8984  0.4864253  14.83727
+    ##   RMSE      Rsquared   MAE     
+    ##   19.91429  0.4853883  14.84668
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
