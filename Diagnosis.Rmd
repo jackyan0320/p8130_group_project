@@ -169,7 +169,7 @@ Based on Cook's distance and DFFITS, there are many potential influential observ
 Based on the diagnostic plots depicted above, we can also treat the number 282, 1000 and 1059 observations as a potential influential outliers.
 
 ```{r}
-# Remove potential outlier 282.
+# Remove potential outlier 282,1000,1059.
 raw_2 = raw_data[-c(282,1000,1059),] 
 
 # Fit a LM model for raw_2 
@@ -316,13 +316,8 @@ model_caret1 = train(target_death_rate ~ avg_ann_count + incidence_rate +
                    trControl=data_train,
                    method='lm',
                    na.action=na.pass)
-model_caret1 
-
-
-  
-
-
-
+model_caret1                                            # RMSE and Rsquare of model 1 #
+ 
 ```
 * From the 5-fold cross validation, the RMSE for the 11-variable model is about 19.87598.
 
@@ -335,7 +330,7 @@ model_caret2 = train(target_death_rate ~ avg_ann_count + incidence_rate + povert
                    trControl=data_train,
                    method='lm',
                    na.action=na.pass)
-model_caret2
+model_caret2                                             # RMSE and Rsquare of model 2 #
 
 ```
 
@@ -349,14 +344,7 @@ model_caret3 = train(target_death_rate ~ avg_ann_count + incidence_rate + med_in
                    trControl=data_train,
                    method='lm',
                    na.action=na.pass)
-model_caret3
-
-cv_result=matrix(c(19.92548,19.91489,19.91665,0.4847982,0.4858724,0.4854369),ncol=3, byrow=TRUE)
-rownames(cv_result)=c("RMSE","Rsquared")
-colnames(cv_result)=c("Model1","Model2","Model3")
-cv_result=as.table(cv_result) %>%
-  knitr::kable()
-cv_result
+model_caret3                                             # RMSE and Rsquare of model 3 #
 ```
 
 * From the 5-fold cross validation, the RMSE for the three models are pretty similar.
@@ -374,8 +362,8 @@ boot.fn = function(data, index){
 set.seed(1)
 boot11=boot(raw_data, boot.fn, 10000)
 boot11_tidy=tidy(boot11)
-model1_bias=mean(boot11_tidy$bias)
-model1_sd=mean(boot11_tidy$std.error)
+mean(boot11_tidy$bias)
+mean(boot11_tidy$std.error)               # mean bias and sd for model 1 #
 ```
 
 **Bootstrap of model 2**
@@ -386,8 +374,8 @@ boot.fn2 = function(data, index){
 set.seed(1)
 boot9=boot(raw_data, boot.fn2, 10000)
 boot9_tidy=tidy(boot9)
-model2_bias=mean(boot9_tidy$bias)
-model2_sd=mean(boot9_tidy$std.error)
+mean(boot9_tidy$bias)
+mean(boot9_tidy$std.error)                # mean bias and sd for model 2 #
 ```
 
 **Bootstrap of model 3**
@@ -398,10 +386,8 @@ boot.fn3 = function(data, index){
 set.seed(1)
 boot10=boot(raw_data, boot.fn3, 10000)
 boot10_tidy=tidy(boot10)
-model3_bias=mean(boot10_tidy$bias)
-model3_sd=mean(boot10_tidy$std.error)
+mean(boot10_tidy$bias)
+mean(boot10_tidy$std.error)               # mean bias and sd for model 3 #
 
-tibble(model1_bias,model1_sd,model2_bias,model2_sd,model3_bias,model3_sd) %>%
-  knitr::kable()
 ```
 

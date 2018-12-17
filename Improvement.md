@@ -434,8 +434,8 @@ summary(try7)
 -   P-value is very large.
 
 ``` r
-try = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_married_households + pct_other_race_1 * poverty_percent, data = raw_data2)
-summary(try) 
+final_model = lm(target_death_rate ~ avg_ann_count + incidence_rate + poverty_percent + median_age_female + pct_hs25_over + pct_bach_deg25_over + pct_unemployed16_over + pct_married_households + pct_other_race_1 + pct_other_race_1 * pct_married_households + pct_other_race_1 * poverty_percent, data = raw_data2)
+summary(final_model) 
 ```
 
     ## 
@@ -483,24 +483,3 @@ summary(try)
     ## Residual standard error: 19.7 on 3035 degrees of freedom
     ## Multiple R-squared:  0.4979, Adjusted R-squared:  0.4961 
     ## F-statistic: 273.6 on 11 and 3035 DF,  p-value: < 2.2e-16
-
-``` r
-summary(try) %>%
-  broom::tidy() %>%
-  knitr::kable(digits = 3)
-```
-
-| term                                         |  estimate|  std.error|  statistic|  p.value|
-|:---------------------------------------------|---------:|----------:|----------:|--------:|
-| (Intercept)                                  |    69.601|     10.125|      6.874|    0.000|
-| avg\_ann\_count                              |    -0.001|      0.000|     -3.547|    0.000|
-| incidence\_rate                              |     0.196|      0.007|     28.278|    0.000|
-| poverty\_percent                             |     1.266|      0.124|     10.196|    0.000|
-| median\_age\_female                          |    -0.256|      0.076|     -3.377|    0.001|
-| pct\_hs25\_over                              |     0.548|      0.089|      6.126|    0.000|
-| pct\_bach\_deg25\_over                       |    -1.242|      0.130|     -9.540|    0.000|
-| pct\_unemployed16\_over                      |     0.727|      0.142|      5.111|    0.000|
-| pct\_married\_households                     |     0.080|      0.112|      0.713|    0.476|
-| pct\_other\_race\_1                          |    58.469|      8.958|      6.527|    0.000|
-| pct\_married\_households:pct\_other\_race\_1 |    -0.772|      0.141|     -5.469|    0.000|
-| poverty\_percent:pct\_other\_race\_1         |    -1.254|      0.144|     -8.726|    0.000|
